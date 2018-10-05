@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.pm.PackageManager;
+import android.nfc.Tag;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -28,7 +29,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-
+import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,6 +66,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("when page is created", "onCreate() called");
         setContentView(R.layout.activity_login);
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
@@ -144,6 +146,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * errors are presented and no actual login attempt is made.
      */
     private void attemptLogin() {
+        onStart();
         if (mAuthTask != null) {
             return;
         }
@@ -153,8 +156,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
+        onPause();
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
+        onResume();
+
 
         boolean cancel = false;
         View focusView = null;
@@ -181,6 +187,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // There was an error; don't attempt login and focus the first
             // form field with an error.
             focusView.requestFocus();
+            onStop();
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
@@ -188,6 +195,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             mAuthTask = new UserLoginTask(email, password);
             mAuthTask.execute((Void) null);
         }
+        onDestroy();
     }
 
     private boolean isEmailValid(String email) {
@@ -346,5 +354,38 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             showProgress(false);
         }
     }
+
+        @Override
+        protected void onStart() {
+            super.onStart();
+            Log.d("before login","onStart() called");
+
+        }
+        @Override
+        protected void onResume() {
+            super.onResume();
+            Log.d("after pause","onResume() called");
+
+        }
+        @Override
+        protected void onPause() {
+            super.onPause();
+            Log.d("post info to be saved","onPause() called");
+
+        }
+        @Override
+        protected void onStop() {
+            super.onStop();
+            Log.d("if an error happens","onStop() called");
+
+        }
+        @Override
+        protected void onDestroy() {
+            super.onDestroy();
+            Log.d("After successful login","onDestroy() called");
+
+        }
+
+
 }
 
