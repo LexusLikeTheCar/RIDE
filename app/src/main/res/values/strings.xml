@@ -14,4 +14,5 @@
         completions."
     </string>
     <string name="title_activity_rider">Map</string>
+    <string name="google_maps_redirect">Google Maps</string>
 </resources>
