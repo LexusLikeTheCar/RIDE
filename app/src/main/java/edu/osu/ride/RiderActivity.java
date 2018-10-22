@@ -1,6 +1,7 @@
 package edu.osu.ride;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -10,7 +11,13 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.view.View;
+import android.widget.Button;
+import android.widget.RadioButton;
+import android.widget.RelativeLayout;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -24,6 +31,8 @@ public class RiderActivity extends FragmentActivity implements OnMapReadyCallbac
     private GoogleMap mMap;
     private LocationManager mLocationManager;
     private LocationListener mLocationListener;
+
+    private Button mFindRidesButton;
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -56,6 +65,19 @@ public class RiderActivity extends FragmentActivity implements OnMapReadyCallbac
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        mFindRidesButton = findViewById(R.id.find_rides);
+        //mFindRidesButton = new Button(this);
+        //mFindRidesButton.setText("Find Rides");
+        //addContentView(mFindRidesButton, new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT));
+        mFindRidesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentManager fm = getSupportFragmentManager();
+                ChooseRideDialogFragment dialog = new ChooseRideDialogFragment();
+                dialog.show(fm, "tag");
+            }
+        });
     }
 
 
