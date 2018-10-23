@@ -32,7 +32,18 @@ public class RiderActivity extends FragmentActivity implements OnMapReadyCallbac
     private LocationManager mLocationManager;
     private LocationListener mLocationListener;
 
+    private Button mFilterRidesAll;
+    private Button mFilterRidesUber;
+    private Button mFilterRidesLyft;
+    private Button mFilterRidesBird;
+    private Button mFilterRidesLime;
     private Button mFindRidesButton;
+
+    private Boolean mAllFiltered = true;
+    private Boolean mUberFiltered = false;
+    private Boolean mLyftFiltered = false;
+    private Boolean mBirdFiltered = false;
+    private Boolean mLimeFiltered = false;
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -66,10 +77,106 @@ public class RiderActivity extends FragmentActivity implements OnMapReadyCallbac
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        mFilterRidesAll = findViewById(R.id.all_rides_filter);
+        mFilterRidesAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAllFiltered = !mAllFiltered;
+                mUberFiltered = false;
+                mLyftFiltered = false;
+                mBirdFiltered = false;
+                mLimeFiltered = false;
+                if (mAllFiltered) {
+                    mFilterRidesAll.setBackground(getDrawable(R.drawable.filtered_on));
+                    mFilterRidesUber.setBackground(getDrawable(R.drawable.filtered_off));
+                    mFilterRidesLyft.setBackground(getDrawable(R.drawable.filtered_off));
+                    mFilterRidesBird.setBackground(getDrawable(R.drawable.filtered_off));
+                    mFilterRidesLime.setBackground(getDrawable(R.drawable.filtered_off));
+                    mFilterRidesAll.setTextColor(getColor(R.color.colorPrimary));
+                    mFilterRidesUber.setTextColor(getColor(R.color.textSecondary));
+                    mFilterRidesLyft.setTextColor(getColor(R.color.textSecondary));
+                    mFilterRidesBird.setTextColor(getColor(R.color.textSecondary));
+                    mFilterRidesLime.setTextColor(getColor(R.color.textSecondary));
+                } else {
+                    mFilterRidesAll.setTextColor(getColor(R.color.textSecondary));
+                    mFilterRidesAll.setBackground(getDrawable(R.drawable.filtered_off));
+                }
+            }
+        });
+
+        mFilterRidesUber = findViewById(R.id.uber_rides_filter);
+        mFilterRidesUber.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mUberFiltered = !mUberFiltered;
+                mAllFiltered = false;
+                if (mUberFiltered) {
+                    mFilterRidesAll.setBackground(getDrawable(R.drawable.filtered_off));
+                    mFilterRidesUber.setBackground(getDrawable(R.drawable.filtered_on));
+                    mFilterRidesAll.setTextColor(getColor(R.color.textSecondary));
+                    mFilterRidesUber.setTextColor(getColor(R.color.colorPrimary));
+                } else {
+                    mFilterRidesUber.setBackground(getDrawable(R.drawable.filtered_off));
+                    mFilterRidesUber.setTextColor(getColor(R.color.textSecondary));
+                }
+            }
+        });
+
+        mFilterRidesLyft = findViewById(R.id.lyft_rides_filter);
+        mFilterRidesLyft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mLyftFiltered = !mLyftFiltered;
+                mAllFiltered = false;
+                if (mLyftFiltered) {
+                    mFilterRidesAll.setBackground(getDrawable(R.drawable.filtered_off));
+                    mFilterRidesLyft.setBackground(getDrawable(R.drawable.filtered_on));
+                    mFilterRidesAll.setTextColor(getColor(R.color.textSecondary));
+                    mFilterRidesLyft.setTextColor(getColor(R.color.colorPrimary));
+                } else {
+                    mFilterRidesLyft.setBackground(getDrawable(R.drawable.filtered_off));
+                    mFilterRidesLyft.setTextColor(getColor(R.color.textSecondary));
+                }
+            }
+        });
+
+        mFilterRidesBird = findViewById(R.id.bird_rides_filter);
+        mFilterRidesBird.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBirdFiltered = !mBirdFiltered;
+                mAllFiltered = false;
+                if (mBirdFiltered) {
+                    mFilterRidesAll.setBackground(getDrawable(R.drawable.filtered_off));
+                    mFilterRidesBird.setBackground(getDrawable(R.drawable.filtered_on));
+                    mFilterRidesAll.setTextColor(getColor(R.color.textSecondary));
+                    mFilterRidesBird.setTextColor(getColor(R.color.colorPrimary));
+                } else {
+                    mFilterRidesBird.setBackground(getDrawable(R.drawable.filtered_off));
+                    mFilterRidesBird.setTextColor(getColor(R.color.textSecondary));
+                }
+            }
+        });
+
+        mFilterRidesLime = findViewById(R.id.lime_rides_filter);
+        mFilterRidesLime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mLimeFiltered = !mLimeFiltered;
+                mAllFiltered = false;
+                if (mLimeFiltered) {
+                    mFilterRidesAll.setBackground(getDrawable(R.drawable.filtered_off));
+                    mFilterRidesLime.setBackground(getDrawable(R.drawable.filtered_on));
+                    mFilterRidesAll.setTextColor(getColor(R.color.textSecondary));
+                    mFilterRidesLime.setTextColor(getColor(R.color.colorPrimary));
+                } else {
+                    mFilterRidesLime.setBackground(getDrawable(R.drawable.filtered_off));
+                    mFilterRidesLime.setTextColor(getColor(R.color.textSecondary));
+                }
+            }
+        });
+
         mFindRidesButton = findViewById(R.id.find_rides);
-        //mFindRidesButton = new Button(this);
-        //mFindRidesButton.setText("Find Rides");
-        //addContentView(mFindRidesButton, new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT));
         mFindRidesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
