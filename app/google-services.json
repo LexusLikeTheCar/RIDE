@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "98866409853",
+    "firebase_url": "https://ride-2a0c6.firebaseio.com",
+    "project_id": "ride-2a0c6",
+    "storage_bucket": "ride-2a0c6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:98866409853:android:28b3f37a9a10583c",
+        "android_client_info": {
+          "package_name": "edu.osu.ride"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "98866409853-pfqo3vsruujik49khbapcmfjinp35bhh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.osu.ride",
+            "certificate_hash": "d05243a2aaebc32bfb97c5942c24398d4d6b1adf"
+          }
+        },
+        {
+          "client_id": "98866409853-b3bqbcm42o9v29uhjmmc4nqc7lmrs75d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-VgDgJWfQ-38RoHEuv65uPFggQR06oUI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "98866409853-b3bqbcm42o9v29uhjmmc4nqc7lmrs75d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

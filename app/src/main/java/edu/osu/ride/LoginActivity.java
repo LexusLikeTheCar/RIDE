@@ -19,6 +19,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.telephony.TelephonyScanManager;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -30,8 +31,22 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.util.Log;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -40,6 +55,7 @@ import static android.Manifest.permission.READ_CONTACTS;
  */
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
+     private String TAG = "Login Activity";
     /**
      * Id to identity READ_CONTACTS permission request.
      */
@@ -66,7 +82,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("when page is created", "onCreate() called");
+
+
+
+        Log.d(TAG, "onCreate() called");
         setContentView(R.layout.activity_login);
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
@@ -150,7 +169,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         if (mAuthTask != null) {
             return;
         }
-
         // Reset errors.
         mEmailView.setError(null);
         mPasswordView.setError(null);
@@ -161,7 +179,28 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         String password = mPasswordView.getText().toString();
         onResume();
 
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        User me  = new User();
+        me.setName("Lexus Uhlir");
+        me.setEmail("uhlir.7@osu.edu");
 
+// Add a new document with a generated ID
+        db.collection("users").document("test").set(me);
+
+//        db.collection("users")
+//                .get()
+//                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//                        if (task.isSuccessful()) {
+//                            for (DocumentSnapshot document : task.getResult()) {
+//                                Log.d(TAG, document.getId() + " => " + document.getData());
+//                            }
+//                        } else {
+//                            Log.w(TAG, "Error getting documents.", task.getException());
+//                        }
+//                    }
+//                });
         boolean cancel = false;
         View focusView = null;
 
@@ -358,31 +397,31 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         @Override
         protected void onStart() {
             super.onStart();
-            Log.d("before login","onStart() called");
+            Log.d(TAG,"onStart() called");
 
         }
         @Override
         protected void onResume() {
             super.onResume();
-            Log.d("after pause","onResume() called");
+            Log.d(TAG,"onResume() called");
 
         }
         @Override
         protected void onPause() {
             super.onPause();
-            Log.d("post info to be saved","onPause() called");
+            Log.d(TAG,"onPause() called");
 
         }
         @Override
         protected void onStop() {
             super.onStop();
-            Log.d("if an error happens","onStop() called");
+            Log.d(TAG,"onStop() called");
 
         }
         @Override
         protected void onDestroy() {
             super.onDestroy();
-            Log.d("After successful login","onDestroy() called");
+            Log.d(TAG,"onDestroy() called");
 
         }
 
