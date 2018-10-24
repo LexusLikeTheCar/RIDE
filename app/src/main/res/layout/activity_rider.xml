@@ -24,6 +24,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.15"
+            android:padding="5dp"
+            android:layout_marginVertical="15dp"
+            android:layout_marginHorizontal="7dp"
             android:scaleType="fitXY"
             android:text="All" />
 
@@ -34,6 +37,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.15"
+            android:padding="5dp"
+            android:layout_marginVertical="15dp"
+            android:layout_marginHorizontal="7dp"
             android:scaleType="fitXY"
             android:text="Uber" />
 
@@ -44,6 +50,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.15"
+            android:padding="5dp"
+            android:layout_marginVertical="15dp"
+            android:layout_marginHorizontal="7dp"
             android:scaleType="fitXY"
             android:text="Lyft" />
 
@@ -54,6 +63,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.15"
+            android:padding="5dp"
+            android:layout_marginVertical="15dp"
+            android:layout_marginHorizontal="7dp"
             android:scaleType="fitXY"
             android:text="Bird" />
 
@@ -64,6 +76,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.15"
+            android:padding="5dp"
+            android:layout_marginVertical="15dp"
+            android:layout_marginHorizontal="7dp"
             android:scaleType="fitXY"
             android:text="Lime" />
 
