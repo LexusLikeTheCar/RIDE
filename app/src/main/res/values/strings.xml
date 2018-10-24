@@ -10,4 +10,7 @@
     <string name="username">username</string>
     <string name="confirm_password">confirm password</string>
     <string name="already_have_account_text">Already have an account?</string>
+    <string name = "edit_button">Update Account</string>
+    <string name = "user_settings_text">User Settings</string>
+    <string name = "delete_button">Delete Account</string>
 </resources>
