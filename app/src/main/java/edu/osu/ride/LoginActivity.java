@@ -48,10 +48,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         mAuth = FirebaseAuth.getInstance();
         mCurrentUser = mAuth.getCurrentUser();
 
-        if (mCurrentUser != null) {
-            // TODO: Signed in, launch the Rider activity
-            startActivity(new Intent(this, SignUpActivity.class));
-        }
+//        if (mCurrentUser != null) {
+//            // TODO: Signed in, launch the Rider activity
+//            startActivity(new Intent(this, SignUpActivity.class));
+//        }
     }
 
     public void signIn() {

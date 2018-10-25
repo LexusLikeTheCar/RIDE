@@ -109,7 +109,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                             if (task.isSuccessful()) {
                                 Toast.makeText(SignUpActivity.this, "User registration successful", Toast.LENGTH_SHORT).show();
                                 mAuth.signOut();
-                                startActivity(new Intent(SignUpActivity.this, SettingsActivity.class));
+                                startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
                             } else {
                                 Toast.makeText(SignUpActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                             }
