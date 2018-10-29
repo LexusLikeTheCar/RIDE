@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
@@ -182,6 +183,14 @@ public class RiderActivity extends FragmentActivity implements OnMapReadyCallbac
             public void onClick(View v) {
                 FragmentManager fm = getSupportFragmentManager();
                 ChooseRideDialogFragment dialog = new ChooseRideDialogFragment();
+
+                Bundle args = new Bundle();
+                args.putBoolean("all", mAllFiltered);
+                args.putBoolean("uber", mUberFiltered);
+                args.putBoolean("lyft", mLyftFiltered);
+                args.putBoolean("bird", mBirdFiltered);
+                args.putBoolean("lime", mLimeFiltered);
+                dialog.setArguments(args);
                 dialog.show(fm, "tag");
             }
         });
