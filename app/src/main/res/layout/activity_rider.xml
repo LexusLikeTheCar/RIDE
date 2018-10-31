@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".RiderActivity" >
+
+    <fragment
+        android:id="@+id/map"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        class="com.google.android.gms.maps.SupportMapFragment" />
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:background="@color/colorPrimary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="Your Location"
+            android:textColor="@color/textPrimary"
+            android:textColorHint="@color/textPrimary"
+            android:background="@drawable/location"/>
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="Destination"
+            android:textColor="@color/textPrimary"
+            android:textColorHint="@color/textPrimary"
+            android:background="@drawable/location"/>
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:background="@color/colorPrimary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal">
+
+            <Button
+                android:id="@+id/all_rides_filter"
+                android:background="@drawable/filtered_on"
+                android:textColor="@color/colorPrimary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.15"
+                android:padding="5dp"
+                android:layout_marginVertical="15dp"
+                android:layout_marginHorizontal="7dp"
+                android:scaleType="fitXY"
+                android:text="All" />
+
+            <Button
+                android:id="@+id/uber_rides_filter"
+                android:background="@drawable/filtered_off"
+                android:textColor="@color/textSecondary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.15"
+                android:padding="5dp"
+                android:layout_marginVertical="15dp"
+                android:layout_marginHorizontal="7dp"
+                android:scaleType="fitXY"
+                android:text="Uber" />
+
+            <Button
+                android:id="@+id/lyft_rides_filter"
+                android:background="@drawable/filtered_off"
+                android:textColor="@color/textSecondary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.15"
+                android:padding="5dp"
+                android:layout_marginVertical="15dp"
+                android:layout_marginHorizontal="7dp"
+                android:scaleType="fitXY"
+                android:text="Lyft" />
+
+            <Button
+                android:id="@+id/bird_rides_filter"
+                android:background="@drawable/filtered_off"
+                android:textColor="@color/textSecondary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.15"
+                android:padding="5dp"
+                android:layout_marginVertical="15dp"
+                android:layout_marginHorizontal="7dp"
+                android:scaleType="fitXY"
+                android:text="Bird" />
+
+            <Button
+                android:id="@+id/lime_rides_filter"
+                android:background="@drawable/filtered_off"
+                android:textColor="@color/textSecondary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.15"
+                android:padding="5dp"
+                android:layout_marginVertical="15dp"
+                android:layout_marginHorizontal="7dp"
+                android:scaleType="fitXY"
+                android:text="Lime" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/find_rides"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
+        android:text="Find Rides"
+        android:background="@drawable/filtered_off"
+        android:textColor="@color/textPrimary" />
+
+</RelativeLayout>
