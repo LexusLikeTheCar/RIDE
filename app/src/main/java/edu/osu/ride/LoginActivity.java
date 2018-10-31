@@ -23,6 +23,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private EditText mEmailField;
     private EditText mPasswordField;
     private Button mLoginButton;
+    private Button mTokenButton;
     private TextView mSignupTextView;
     private ProgressBar mLoginProgressBar;
 
@@ -39,6 +40,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         mLoginButton = findViewById(R.id.login_button);
         mLoginButton.setOnClickListener(this);
+
+        mTokenButton = findViewById(R.id.token_button);
+        mTokenButton.setOnClickListener(this);
 
         mSignupTextView = findViewById(R.id.signup_text_view);
         mSignupTextView.setOnClickListener(this);
@@ -92,6 +96,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         switch (v.getId()) {
             case R.id.login_button:
                 signIn();
+                break;
+            case R.id.token_button:
+                startActivity(new Intent(LoginActivity.this, TokenActivity.class));
                 break;
             case R.id.signup_text_view:
                 startActivity(new Intent(this, SignUpActivity.class));
