@@ -23,6 +23,14 @@
           }
         },
         {
+          "client_id": "446739426642-21sd6cq2sga7jl659acllt0evdged6r5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.osu.ride",
+            "certificate_hash": "6579ae340a141dec962b42a0752603c4c4757ed0"
+          }
+        },
+        {
           "client_id": "446739426642-rm6a3ksushrtj4qjlbpc6df44pj5bk6i.apps.googleusercontent.com",
           "client_type": 3
         }
