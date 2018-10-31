@@ -48,11 +48,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         mAuth = FirebaseAuth.getInstance();
         mCurrentUser = mAuth.getCurrentUser();
-
-        if (mCurrentUser != null) {
-            // TODO: Signed in, launch the Rider activity
-            startActivity(new Intent(this, SignUpActivity.class));
-        }
     }
 
     public void signIn() {
@@ -83,8 +78,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    // TODO: redirect to Rider activity
-                    startActivity(new Intent(LoginActivity.this, SignUpActivity.class));
+                    startActivity(new Intent(LoginActivity.this, RiderActivity.class));
                 } else {
                     Toast.makeText(LoginActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                 }
