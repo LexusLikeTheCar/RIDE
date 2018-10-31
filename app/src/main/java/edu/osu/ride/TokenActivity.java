@@ -37,6 +37,17 @@ public class TokenActivity extends AppCompatActivity implements View.OnClickList
                     e.printStackTrace();
                 }
                 Log.i("TokenActivity", token);
+
+                String locationResponse = "";
+                if (!token.isEmpty()) {
+                    try {
+                        locationResponse = new BirdLocationOperation().execute(token).get();
+                    } catch (ExecutionException | InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                Log.i("LocationResponse", locationResponse);
+
                 break;
         }
     }
@@ -58,6 +69,37 @@ public class TokenActivity extends AppCompatActivity implements View.OnClickList
             }
 
             return token;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {}
+
+        @Override
+        protected void onPreExecute() {}
+
+        @Override
+        protected void onProgressUpdate(Void... values) {}
+    }
+
+    private static class BirdLocationOperation extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            String token = params[0];
+
+            String locationResponse = "";
+
+            try {
+                try {
+                    locationResponse = BirdService.locationResponse(token);
+                } catch (HttpResponseException e) {
+                    System.err.println(e.getMessage());
+                }
+            } catch (Throwable t) {
+                t.printStackTrace();
+            }
+
+            return locationResponse;
         }
 
         @Override

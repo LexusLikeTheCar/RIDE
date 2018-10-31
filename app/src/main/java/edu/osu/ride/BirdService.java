@@ -21,8 +21,15 @@ import java.util.UUID;
 
 public class BirdService {
 
-    static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
-    static final JsonFactory JSON_FACTORY = new JacksonFactory();
+    private static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
+    private static final JsonFactory JSON_FACTORY = new JacksonFactory();
+    private static final HttpRequestFactory requestFactory =
+            HTTP_TRANSPORT.createRequestFactory(new HttpRequestInitializer() {
+                @Override
+                public void initialize(HttpRequest request) {
+                    request.setParser(new JsonObjectParser(JSON_FACTORY));
+                }
+            });
 
     public static class BirdToken {
         @Key
@@ -30,14 +37,6 @@ public class BirdService {
     }
 
     public static String generateToken() throws Exception {
-        HttpRequestFactory requestFactory =
-                HTTP_TRANSPORT.createRequestFactory(new HttpRequestInitializer() {
-                    @Override
-                    public void initialize(HttpRequest request) {
-                        request.setParser(new JsonObjectParser(JSON_FACTORY));
-                    }
-                });
-
         HttpHeaders headers = new HttpHeaders();
         headers.put("Device-id", UUID.randomUUID().toString());
         headers.put("Platform", "android");
@@ -54,6 +53,23 @@ public class BirdService {
                 .execute()
                 .parseAs(BirdToken.class)
                 .token;
+    }
+
+    public static String locationResponse(String token) throws Exception {
+        String locationVal = "{\"latitude\":40.001733,\"longitude\":-83.016041,\"altitude\":227,\"accuracy\":100,\"speed\":-1,\"heading\":-1}";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAuthorization("Bird " + token);
+        headers.setLocation(locationVal);
+        headers.put("Device-id", UUID.randomUUID().toString());
+        headers.put("App-Version", "3.0.5");
+
+        GenericUrl birdLocationUrl = new GenericUrl("https://api.bird.co/bird/nearby?latitude=40.001733&longitude=-83.016041&radius=1000");
+
+        return requestFactory.buildGetRequest(birdLocationUrl)
+                .setHeaders(headers)
+                .execute()
+                .parseAsString();
     }
 
 }
