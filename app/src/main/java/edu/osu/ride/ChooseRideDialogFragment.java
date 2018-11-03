@@ -1,20 +1,18 @@
 package edu.osu.ride;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
-import static java.lang.System.out;
-
-public class ChooseRideDialogFragment extends DialogFragment {
+public class ChooseRideDialogFragment extends DialogFragment implements View.OnClickListener {
 
     private Boolean mAllFiltered;
     private Boolean mUberFiltered;
@@ -22,17 +20,14 @@ public class ChooseRideDialogFragment extends DialogFragment {
     private Boolean mBirdFiltered;
     private Boolean mLimeFiltered;
 
-    private Context mContext;
+    private Activity mActivity;
     private LinearLayout mOptimalUber;
     private LinearLayout mOptimalLyft;
     private LinearLayout mOptimalBird;
     private LinearLayout mOptimalLime;
 
     private Button mShowLime;
-
-    public ChooseRideDialogFragment() {
-        mContext = getActivity();
-    }
+    private Button mShowBird;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,9 +47,9 @@ public class ChooseRideDialogFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        // Use the Builder class for convenient dialog construction
+        mActivity = getActivity();
 
-        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        LayoutInflater inflater = LayoutInflater.from(mActivity);
         View v = inflater.inflate(R.layout.dialog_choose_ride, null, false);
 
         mOptimalUber = v.findViewById(R.id.optimal_uber);
@@ -75,14 +70,41 @@ public class ChooseRideDialogFragment extends DialogFragment {
             mOptimalLime.setVisibility(View.GONE);
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
         builder.setView(v);
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                // User cancelled the dialog
+                removeDim();
             }
         });
+
         // Create the AlertDialog object and return it
-        return builder.create();
+        final AlertDialog dialog = builder.create();
+        dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+
+        mShowBird = v.findViewById(R.id.show_birds);
+        mShowBird.setOnClickListener(this);
+
+        return dialog;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.show_birds:
+                getDialog().dismiss();
+                removeDim();
+                getRiderActivity().mShowBirds = true;
+                getRiderActivity().updateMap();
+                break;
+        }
+    }
+
+    public RiderActivity getRiderActivity() {
+        return (RiderActivity) mActivity;
+    }
+
+    private void removeDim() {
+        getActivity().findViewById(R.id.dim).setVisibility(View.GONE);
     }
 }

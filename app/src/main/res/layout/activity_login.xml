@@ -71,19 +71,6 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <Button
-                android:id="@+id/token_button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="10dp"
-                android:background="@color/colorPrimary"
-                android:fontFamily="sans-serif"
-                android:text="GO TO TOKEN VIEW"
-                android:textColor="@android:color/background_light"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

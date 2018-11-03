@@ -1,4 +1,4 @@
-package edu.osu.ride;
+package edu.osu.ride.model;
 
 public class User {
 

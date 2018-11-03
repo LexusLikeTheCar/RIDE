@@ -18,6 +18,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 
+import edu.osu.ride.model.User;
+
 public class SignUpActivity extends AppCompatActivity implements View.OnClickListener {
 
     private EditText mEmailField;
