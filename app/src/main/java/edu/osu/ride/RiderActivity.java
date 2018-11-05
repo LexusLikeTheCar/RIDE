@@ -42,6 +42,7 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
     private static final String BIRD = "Bird";
     private static final String LIME = "Lime";
 
+    private Location lastKnownLocation;
     private GoogleMap mMap;
     private View mMapView;
 
@@ -49,6 +50,9 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
     public void setBirds(List<Bird> birds) {
         mBirds = birds;
     }
+    private double optimalBird = Double.MAX_VALUE;
+    private double optimalBirdDest = Double.MAX_VALUE;
+    private double optimalBirdCost = Double.MAX_VALUE;
 
     private LocationManager mLocationManager;
     private LocationListener mLocationListener;
@@ -78,7 +82,7 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
                     mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 50000, 15, mLocationListener);
                     mMap.setMyLocationEnabled(true);
                     mMap.setOnMyLocationButtonClickListener(this);
-                    Location lastKnownLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    lastKnownLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                     initializeMap(lastKnownLocation);
                 }
             }
@@ -124,8 +128,8 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
             List<LatLng> birdMarkers = getBirdMarkers(mBirds);
 
             if (birdMarkers.size() > 0) {
-                for (LatLng m : birdMarkers) {
-                    MarkerOptions birdMarkerOpts = new MarkerOptions().position(m);
+                for (LatLng bird : birdMarkers) {
+                    MarkerOptions birdMarkerOpts = new MarkerOptions().position(bird);
                     mMap.addMarker(birdMarkerOpts)
                             .setIcon(BitmapDescriptorFactory.fromResource(R.mipmap.bird_location));
                 }
@@ -165,6 +169,17 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
     }
 
     public void responseAggregationFinished() {
+        if (mAllFiltered || mBirdFiltered) {
+            List<LatLng> birdMarkers = getBirdMarkers(mBirds);
+            LatLng origin = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
+
+            if (birdMarkers.size() > 0) {
+                for (LatLng bird : birdMarkers) {
+                    getDestinationInfo(origin, bird);
+                }
+            }
+        }
+
         FragmentManager fm = getSupportFragmentManager();
         ChooseRideDialogFragment dialog = new ChooseRideDialogFragment();
 
@@ -174,6 +189,11 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
         args.putBoolean("lyft", mLyftFiltered);
         args.putBoolean("bird", mBirdFiltered);
         args.putBoolean("lime", mLimeFiltered);
+        if (mAllFiltered || mBirdFiltered) {
+            args.putDouble("birdDuration", optimalBird);
+            args.putDouble("birdDestination", optimalBirdDest);
+            args.putDouble("birdCost", optimalBirdCost);
+        }
         dialog.setArguments(args);
         dialog.show(fm, "tag");
     }
@@ -203,7 +223,7 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
             mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 15, mLocationListener);
             mMap.setMyLocationEnabled(true);
             mMap.setOnMyLocationButtonClickListener(this);
-            Location lastKnownLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            lastKnownLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             initializeMap(lastKnownLocation);
         }
     }
@@ -305,7 +325,7 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
                 toggleFilter(LIME);
                 break;
             case R.id.find_rides:
-                if (mAllFiltered) {
+                if (mAllFiltered) { ;
                     new ResponseAggregatorAsyncTask(RiderActivity.this).execute();
                 } else {
                     // TODO: Switch back to using below method once all ride services are implemented
@@ -315,6 +335,38 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
                     new ResponseAggregatorAsyncTask(RiderActivity.this).execute(); // TEMPORARY WORKAROUND
                 }
                 break;
+        }
+    }
+
+    private void getDestinationInfo(LatLng origin, LatLng bird) {
+        final double earthRadius = 3961; // mi
+        final double averageWalkingSpeed = 3.1; // mph
+        final double averageScooterSpeed = 15; // mph
+        final LatLng destination = new LatLng(40.0049976,-83.0077963);
+
+        double dLon = (bird.longitude - origin.longitude)*(Math.PI/180); // Radians
+        double dLat = (bird.latitude - origin.latitude)*(Math.PI/180); // Radians
+        double a = Math.pow(Math.sin(dLat/2), 2) + Math.cos(origin.latitude)*Math.cos(bird.latitude)*Math.pow((Math.sin(dLon/2)), 2);
+        double c = 2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        double distanceBird = earthRadius*c; // mi
+        double durationBird = distanceBird/averageWalkingSpeed*60; // min
+
+        System.out.println("bird: " + distanceBird + "mi, " + durationBird + "min");
+
+        dLon = (destination.longitude - bird.longitude)*(Math.PI/180); // Radians
+        dLat = (destination.latitude - bird.latitude)*(Math.PI/180); // Radians
+        a = Math.pow(Math.sin(dLat/2), 2) + Math.cos(bird.latitude)*Math.cos(destination.latitude)*Math.pow((Math.sin(dLon/2)), 2);
+        c = 2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        double distanceDest = earthRadius*c; // mi
+        double durationDest = distanceDest/averageScooterSpeed*60 + durationBird; // min
+        double cost = Math.round((1 + 0.15*durationDest)*100.00)/100.00;
+
+        System.out.println("dest: " + (distanceDest + distanceBird)  + "mi, " + durationDest + "min");
+
+        if (durationDest < optimalBirdDest) {
+            optimalBird = Math.round(durationBird);
+            optimalBirdDest = Math.round(durationDest);
+            optimalBirdCost = cost;
         }
     }
 }

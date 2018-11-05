@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 public class ChooseRideDialogFragment extends DialogFragment implements View.OnClickListener {
 
@@ -19,6 +20,10 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
     private Boolean mLyftFiltered;
     private Boolean mBirdFiltered;
     private Boolean mLimeFiltered;
+
+    private String optimalBird;
+    private String optimalBirdDest;
+    private String optimalBirdCost;
 
     private Activity mActivity;
     private LinearLayout mOptimalUber;
@@ -37,12 +42,20 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
         mLyftFiltered = getArguments().getBoolean("lyft");
         mBirdFiltered = getArguments().getBoolean("bird");
         mLimeFiltered = getArguments().getBoolean("lime");
+
         if (mAllFiltered) {
             mUberFiltered = true;
             mLyftFiltered = true;
             mBirdFiltered = true;
             mLimeFiltered = true;
         }
+
+        if (mBirdFiltered) {
+            optimalBird = Double.toString(getArguments().getDouble("birdDuration"));
+            optimalBirdDest = Double.toString(getArguments().getDouble("birdDestination"));
+            optimalBirdCost = Double.toString(getArguments().getDouble("birdCost"));
+        }
+
     }
 
     @Override
@@ -68,6 +81,15 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
         }
         if(!mLimeFiltered) {
             mOptimalLime.setVisibility(View.GONE);
+        }
+
+        if(mBirdFiltered) {
+            TextView closestBird = v.findViewById(R.id.closest_bird);
+            closestBird.setText("Closest scooter:" + optimalBird);
+            TextView durationBird = v.findViewById(R.id.duration_bird);
+            durationBird.setText("Destination arrival: " + optimalBirdDest);
+            TextView costBird = v.findViewById(R.id.cost_bird);
+            costBird.setText("Estimated Cost: $" + optimalBirdCost);
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
