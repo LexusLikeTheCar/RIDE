@@ -19,14 +19,7 @@
         android:orientation="vertical">
 
         <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:hint="Your Location"
-            android:textColor="@color/textPrimary"
-            android:textColorHint="@color/textPrimary"
-            android:background="@drawable/location"/>
-
-        <EditText
+            android:id="@+id/destination"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:hint="Destination"
@@ -35,6 +28,7 @@
             android:background="@drawable/location"/>
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/filters"
             android:background="@color/colorPrimary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -106,6 +100,15 @@
                 android:text="Lime" />
 
         </LinearLayout>
+
+        <Button
+            android:id="@+id/ride_options"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ride Options"
+            android:background="@drawable/filtered_off"
+            android:textColor="@color/textPrimary"
+            android:visibility="gone"/>
 
     </LinearLayout>
 

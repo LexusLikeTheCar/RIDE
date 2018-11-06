@@ -34,6 +34,8 @@ import java.util.List;
 import edu.osu.ride.async.ResponseAggregatorAsyncTask;
 import edu.osu.ride.model.bird.Bird;
 
+import static android.view.View.GONE;
+
 public class RiderActivity extends FragmentActivity implements OnMyLocationButtonClickListener,
         OnClickListener, OnMapReadyCallback {
 
@@ -134,6 +136,10 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
                             .setIcon(BitmapDescriptorFactory.fromResource(R.mipmap.bird_location));
                 }
             }
+            findViewById(R.id.find_rides).setVisibility(GONE);
+            findViewById(R.id.filters).setVisibility(GONE);
+            findViewById(R.id.destination).setVisibility(GONE);
+            findViewById(R.id.ride_options).setVisibility(View.VISIBLE);
         }
     }
 
