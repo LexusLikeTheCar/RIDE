@@ -3,14 +3,49 @@ package edu.osu.ride;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
+
+import com.google.android.gms.common.api.Scope;
+import com.lyft.lyftbutton.LyftButton;
+import com.lyft.lyftbutton.RideParams;
+import com.lyft.lyftbutton.RideTypeEnum;
+import com.lyft.networking.ApiConfig;
+import com.uber.sdk.android.core.auth.AccessTokenManager;
+import com.uber.sdk.android.core.auth.LoginManager;
+import com.uber.sdk.android.rides.RideParameters;
+import com.uber.sdk.android.rides.RideRequestButton;
+import com.uber.sdk.core.auth.AccessTokenStorage;
+import com.uber.sdk.rides.client.ServerTokenSession;
+import com.uber.sdk.rides.client.SessionConfiguration;
+import com.uber.sdk.android.core.Deeplink;
+import com.uber.sdk.android.core.auth.AccessTokenManager;
+import com.uber.sdk.android.core.auth.AuthenticationError;
+import com.uber.sdk.android.rides.RideParameters;
+import com.uber.sdk.android.rides.RideRequestActivity;
+import com.uber.sdk.android.rides.RideRequestActivityBehavior;
+import com.uber.sdk.android.rides.RideRequestButton;
+import com.uber.sdk.android.rides.RideRequestButtonCallback;
+import com.uber.sdk.android.rides.RideRequestViewError;
+import com.uber.sdk.core.auth.AccessToken;
+import com.uber.sdk.core.auth.AccessTokenStorage;
+import com.uber.sdk.rides.client.error.ApiError;
+
+import java.util.Arrays;
+
+import static com.uber.sdk.android.core.utils.Preconditions.checkNotNull;
+import static com.uber.sdk.android.core.utils.Preconditions.checkState;
 
 public class ChooseRideDialogFragment extends DialogFragment implements View.OnClickListener {
 
@@ -25,9 +60,26 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
     private LinearLayout mOptimalLyft;
     private LinearLayout mOptimalBird;
     private LinearLayout mOptimalLime;
-
+    private static final String CLIENT_ID = "Z5wpBCpfdZu0HHWPkQ5Pf9Y3x1utTlRL";
+    private static final String REDIRECT_URI = "https://www.uber.com/sign-in/";
+    private static final String SERVER_TOKEN = "coaJmlyKfOzo23ScdhVfBCy4o6SNSDQ4zQke-2u-";
+    private static final String DROPOFF_ADDR = "One Embarcadero Center, San Francisco";
+    private static final Double DROPOFF_LAT = 37.795079;
+    private static final Double DROPOFF_LONG = -122.397805;
+    private static final String DROPOFF_NICK = "Embarcadero";
+    private static final String ERROR_LOG_TAG = "UberSDK-SampleActivity";
+    private static final String PICKUP_ADDR = "1455 Market Street, San Francisco";
+    private static final Double PICKUP_LAT = 37.775304;
+    private static final Double PICKUP_LONG = -122.417522;
+    private static final String PICKUP_NICK = "Uber HQ";
+    private com.uber.sdk.rides.client.SessionConfiguration configuration;
+    private static final String TAG = "Rider Dialog Fragment";
+    private static final String LYFT_PACKAGE = "me.lyft.android";
+    private AccessTokenStorage accessTokenStorage;
+    private LoginManager loginManager;
     private Button mShowLime;
     private Button mShowBird;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -84,6 +136,51 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
 
         mShowBird = v.findViewById(R.id.show_birds);
         mShowBird.setOnClickListener(this);
+        //TODO: ensure these work
+        //uber
+         configuration = new SessionConfiguration.Builder()
+                .setClientId(CLIENT_ID)
+                .setServerToken(SERVER_TOKEN).setRedirectUri(REDIRECT_URI).setEnvironment(SessionConfiguration.Environment.SANDBOX) //Useful for testing your app in the sandbox environment
+
+                .build();
+        validateConfiguration(configuration);
+
+
+        accessTokenStorage = new AccessTokenManager(mActivity);
+        //UberSdk.initialize(configuration);
+
+        ServerTokenSession session = new ServerTokenSession(configuration);
+
+
+        RideParameters rideParametersCheapestProduct = new RideParameters.Builder()
+                .setPickupLocation(PICKUP_LAT, PICKUP_LONG, PICKUP_NICK, PICKUP_ADDR)
+                .setDropoffLocation(DROPOFF_LAT, DROPOFF_LONG, DROPOFF_NICK, DROPOFF_ADDR)
+                .build();
+
+        // This button demonstrates deep-linking to the Uber app (default button behavior).
+        RideRequestButton blackButton = (RideRequestButton) v.findViewById(R.id.uber_app);
+        blackButton.setRideParameters(rideParametersCheapestProduct);
+        blackButton.setSession(session);
+        blackButton.loadRideInformation();
+
+
+        //lyft
+        ApiConfig apiConfig = new ApiConfig.Builder()
+                .setClientId("y5_U06Wt1Uub")
+                .setClientToken("/o+SE7Zb4/BVc63U5T6UEVHbB5xXTlU6Wyom69l2qI7aYP8z8/yCtDTQwkpuc8SbNJzpHpsbfa/Lf78KGDB5QEMTzonS8Ci1UYgnPGTuRJJQFquulZc9kqA=")
+                .build();
+        LyftButton lyftButton = (LyftButton) v.findViewById(R.id.lyft_app);
+        lyftButton.setApiConfig(apiConfig);
+
+        RideParams.Builder rideParamsBuilder = new RideParams.Builder()
+                .setPickupLocation(PICKUP_LAT, PICKUP_LONG)
+                .setDropoffLocation(DROPOFF_LAT, DROPOFF_LONG);
+        rideParamsBuilder.setRideTypeEnum(RideTypeEnum.CLASSIC);
+
+        lyftButton.setRideParams(rideParamsBuilder.build());
+        lyftButton.load();
+
+        v.findViewById(R.id.lyft_app).setOnClickListener(this);
 
         return dialog;
     }
@@ -97,6 +194,11 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
                 getRiderActivity().mShowBirds = true;
                 getRiderActivity().updateMap();
                 break;
+            case R.id.lyft_app:
+                getDialog().dismiss();
+                removeDim();
+                deepLinkIntoLyft();
+                break;
         }
     }
 
@@ -106,5 +208,62 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
 
     private void removeDim() {
         getActivity().findViewById(R.id.dim).setVisibility(View.GONE);
+    }
+
+    private void deepLinkIntoLyft() {
+        if (isPackageInstalled(mActivity, LYFT_PACKAGE)) {
+            //This intent will help you to launch if the package is already installed
+            //ohio union is destination
+            openLink(mActivity, "lyft://ridetype?id=lyft&pickup[latitude]=37.764728&pickup[longitude]=-122.422999&destination[latitude]=37.7763592&destination[longitude]=-122.4242038");
+
+            Log.d(TAG, "Lyft is already installed on your phone.");
+        } else {
+
+            openLink(mActivity, "https://www.lyft.com/signup/SDKSIGNUP?clientId=y5_U06Wt1Uub&sdkName=android_direct");
+
+            Log.d(TAG, "Lyft is not currently installed on your phone..");
+        }
+    }
+
+    static void openLink(Activity activity, String link) {
+        Intent playStoreIntent = new Intent(Intent.ACTION_VIEW);
+        playStoreIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        playStoreIntent.setData(Uri.parse(link));
+        activity.startActivity(playStoreIntent);
+    }
+
+    static boolean isPackageInstalled(Context context, String packageId) {
+        PackageManager pm = context.getPackageManager();
+        try {
+            pm.getPackageInfo(packageId, PackageManager.GET_ACTIVITIES);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            // ignored.
+        }
+        return false;
+    }
+
+    /**
+     * Validates the local variables needed by the Uber SDK used in the Uber sample provided in their
+     * SDK documentation
+     *
+     * @param configuration
+     */
+    private void validateConfiguration(com.uber.sdk.rides.client.SessionConfiguration configuration) {
+        String nullError = "%s must not be null";
+        String sampleError = "Please update your %s in the gradle.properties of the project before " +
+                "using the Uber SDK Sample app. For a more secure storage location, " +
+                "please investigate storing in your user home gradle.properties ";
+
+        checkNotNull(configuration, String.format(nullError, "SessionConfiguration"));
+        checkNotNull(configuration.getClientId(), String.format(nullError, "Client ID"));
+        checkNotNull(configuration.getRedirectUri(), String.format(nullError, "Redirect URI"));
+        checkNotNull(configuration.getServerToken(), String.format(nullError, "Server Token"));
+        checkState(!configuration.getClientId().equals("insert_your_client_id_here"),
+                String.format(sampleError, "Client ID"));
+        checkState(!configuration.getRedirectUri().equals("insert_your_redirect_uri_here"),
+                String.format(sampleError, "Redirect URI"));
+        checkState(!configuration.getRedirectUri().equals("insert_your_server_token_here"),
+                String.format(sampleError, "Server Token"));
     }
 }
