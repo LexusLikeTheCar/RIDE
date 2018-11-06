@@ -29,8 +29,8 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
     private Boolean mBirdFiltered;
     private Boolean mLimeFiltered;
 
-    private String optimalBird;
-    private String optimalBirdDest;
+    private int optimalBird;
+    private int optimalBirdDest;
     private String optimalBirdCost;
 
     private Activity mActivity;
@@ -59,8 +59,8 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
         }
 
         if (mBirdFiltered) {
-            optimalBird = Double.toString(getArguments().getDouble("birdDuration"));
-            optimalBirdDest = Double.toString(getArguments().getDouble("birdDestination"));
+            optimalBird = (int)(getArguments().getDouble("birdDuration"));
+            optimalBirdDest = (int)(getArguments().getDouble("birdDestination"));
             optimalBirdCost = Double.toString(getArguments().getDouble("birdCost"));
         }
 
@@ -92,14 +92,22 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
         }
 
         if(mBirdFiltered) {
+            Calendar toBird = Calendar.getInstance();
+            toBird.add(Calendar.HOUR, optimalBird/60);
+            toBird.add(Calendar.MINUTE, optimalBird%60);
+            Calendar toDest = Calendar.getInstance();
+            toDest.add(Calendar.HOUR, optimalBirdDest/60);
+            toDest.add(Calendar.MINUTE, optimalBirdDest%60);
+
             SimpleDateFormat localDateFormat = new SimpleDateFormat("KK:mm a");
-            String time = localDateFormat.format(Calendar.getInstance().getTime());
-            Date d = new Date();
+            String toBirdTime = localDateFormat.format(toBird.getTime());
+            String toDestTime = localDateFormat.format(toDest.getTime());
+
             //d.setTime(optimalBird);
             TextView closestBird = v.findViewById(R.id.closest_bird);
-            closestBird.setText("Closest scooter:" + optimalBird + " " + time);
+            closestBird.setText("Closest scooter:" + toBirdTime);
             TextView durationBird = v.findViewById(R.id.duration_bird);
-            durationBird.setText("Destination arrival: " + optimalBirdDest);
+            durationBird.setText("Destination arrival: " + toDestTime);
             TextView costBird = v.findViewById(R.id.cost_bird);
             costBird.setText("Estimated Cost: $" + optimalBirdCost);
         }
