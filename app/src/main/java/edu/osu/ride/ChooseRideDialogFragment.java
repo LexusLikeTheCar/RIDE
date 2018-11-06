@@ -13,6 +13,14 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import java.util.Date;
+
 public class ChooseRideDialogFragment extends DialogFragment implements View.OnClickListener {
 
     private Boolean mAllFiltered;
@@ -84,8 +92,12 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
         }
 
         if(mBirdFiltered) {
+            SimpleDateFormat localDateFormat = new SimpleDateFormat("KK:mm a");
+            String time = localDateFormat.format(Calendar.getInstance().getTime());
+            Date d = new Date();
+            //d.setTime(optimalBird);
             TextView closestBird = v.findViewById(R.id.closest_bird);
-            closestBird.setText("Closest scooter:" + optimalBird);
+            closestBird.setText("Closest scooter:" + optimalBird + " " + time);
             TextView durationBird = v.findViewById(R.id.duration_bird);
             durationBird.setText("Destination arrival: " + optimalBirdDest);
             TextView costBird = v.findViewById(R.id.cost_bird);

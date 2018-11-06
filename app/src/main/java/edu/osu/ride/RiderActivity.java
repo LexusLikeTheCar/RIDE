@@ -351,7 +351,7 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
         double distanceBird = earthRadius*c; // mi
         double durationBird = distanceBird/averageWalkingSpeed*60; // min
 
-        System.out.println("bird: " + distanceBird + "mi, " + durationBird + "min");
+        //System.out.println("bird: " + distanceBird + "mi, " + durationBird + "min");
 
         dLon = (destination.longitude - bird.longitude)*(Math.PI/180); // Radians
         dLat = (destination.latitude - bird.latitude)*(Math.PI/180); // Radians
@@ -361,7 +361,7 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
         double durationDest = distanceDest/averageScooterSpeed*60 + durationBird; // min
         double cost = Math.round((1 + 0.15*durationDest)*100.00)/100.00;
 
-        System.out.println("dest: " + (distanceDest + distanceBird)  + "mi, " + durationDest + "min");
+        //System.out.println("dest: " + (distanceDest + distanceBird)  + "mi, " + durationDest + "min");
 
         if (durationDest < optimalBirdDest) {
             optimalBird = Math.round(durationBird);
