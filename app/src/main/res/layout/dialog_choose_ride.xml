@@ -13,6 +13,12 @@
         android:layout_height="wrap_content"
         android:visibility="visible">
 
+        <!--<ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:src="@drawable/uber"/>-->
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:orientation="vertical"
@@ -20,9 +26,34 @@
             android:layout_height="wrap_content"
             android:layout_weight="3">
 
+            <!--<TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:layout_marginBottom="4dp"
+                android:textSize="16dp"
+                android:textStyle="bold"
+                android:text="Uber" />
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Closest scooter: 12:38 PM" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Destination arrival: 12:44 PM" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Estimated cost $1.15" />-->
 
         </LinearLayout>
+
         <!--TODO:fix uber look-->
         <com.uber.sdk.android.rides.RideRequestButton
             android:id="@+id/uber_app"
@@ -47,6 +78,12 @@
         android:layout_height="wrap_content"
         android:visibility="visible">
 
+        <!--<ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:src="@drawable/lyft"/>-->
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:orientation="vertical"
@@ -54,15 +91,31 @@
             android:layout_height="wrap_content"
             android:layout_weight="3">
 
-            <TextView
+            <!--<TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
                 android:layout_marginBottom="4dp"
-                android:textSize="16dp" />
+                android:textSize="16dp"
+                android:textStyle="bold"
+                android:text="Lyft" />
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Closest scooter: 12:38 PM" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Destination arrival: 12:44 PM" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Estimated cost $1.15" /> -->
 
         </LinearLayout>
 

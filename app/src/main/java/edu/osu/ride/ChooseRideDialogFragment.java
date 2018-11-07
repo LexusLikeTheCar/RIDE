@@ -212,6 +212,8 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
         blackButton.setSession(session);
         blackButton.loadRideInformation();
 
+        //timeEstimateView = (TextView) findViewById(com.uber.sdk.android.rides.R.id.time_estimate); // ToDo: reference individual pieces of layout to fix UI
+
 
         //lyft
         ApiConfig apiConfig = new ApiConfig.Builder()
