@@ -115,16 +115,19 @@
                 android:text="Bird" />
 
             <TextView
+                android:id="@+id/closest_bird"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Closest scooter: 12:40 PM" />
 
             <TextView
+                android:id="@+id/duration_bird"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Destination arrival: 12:46 PM" />
 
             <TextView
+                android:id="@+id/cost_bird"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Estimated cost $1.65" />

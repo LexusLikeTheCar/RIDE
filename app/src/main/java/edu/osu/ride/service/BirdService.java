@@ -63,10 +63,10 @@ public class BirdService {
         headers.put("Device-id", UUID.randomUUID().toString());
         headers.put("App-Version", "3.0.5");
 
-        GenericUrl birdLocationUrl = new GenericUrl("https://api.bird.co/bird/nearby?latitude=40.001733&longitude=-83.016041&radius=1000");
+        //GenericUrl birdLocationUrl = new GenericUrl("https://api.bird.co/bird/nearby?latitude=40.001733&longitude=-83.016041&radius=1000");
 
         // NOTE: Comment out above URL and use this URL if testing after Bird's hours of operations
-        // GenericUrl birdLocationUrl = new GenericUrl("https://putsreq.com/fr0S8chPbKIQTpfBA7Bd");
+         GenericUrl birdLocationUrl = new GenericUrl("https://putsreq.com/fr0S8chPbKIQTpfBA7Bd");
 
         return requestFactory.buildGetRequest(birdLocationUrl)
                 .setHeaders(headers)

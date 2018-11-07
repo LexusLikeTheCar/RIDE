@@ -16,6 +16,15 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import java.util.Date;
 
 import com.google.android.gms.common.api.Scope;
 import com.lyft.lyftbutton.LyftButton;
@@ -55,6 +64,10 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
     private Boolean mBirdFiltered;
     private Boolean mLimeFiltered;
 
+    private int optimalBird;
+    private int optimalBirdDest;
+    private String optimalBirdCost;
+
     private Activity mActivity;
     private LinearLayout mOptimalUber;
     private LinearLayout mOptimalLyft;
@@ -89,12 +102,20 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
         mLyftFiltered = getArguments().getBoolean("lyft");
         mBirdFiltered = getArguments().getBoolean("bird");
         mLimeFiltered = getArguments().getBoolean("lime");
+
         if (mAllFiltered) {
             mUberFiltered = true;
             mLyftFiltered = true;
             mBirdFiltered = true;
             mLimeFiltered = true;
         }
+
+        if (mBirdFiltered) {
+            optimalBird = (int)(getArguments().getDouble("birdDuration"));
+            optimalBirdDest = (int)(getArguments().getDouble("birdDestination"));
+            optimalBirdCost = Double.toString(getArguments().getDouble("birdCost"));
+        }
+
     }
 
     @Override
@@ -120,6 +141,27 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
         }
         if(!mLimeFiltered) {
             mOptimalLime.setVisibility(View.GONE);
+        }
+
+        if(mBirdFiltered) {
+            Calendar toBird = Calendar.getInstance();
+            toBird.add(Calendar.HOUR, optimalBird/60);
+            toBird.add(Calendar.MINUTE, optimalBird%60);
+            Calendar toDest = Calendar.getInstance();
+            toDest.add(Calendar.HOUR, optimalBirdDest/60);
+            toDest.add(Calendar.MINUTE, optimalBirdDest%60);
+
+            SimpleDateFormat localDateFormat = new SimpleDateFormat("KK:mm a");
+            String toBirdTime = localDateFormat.format(toBird.getTime());
+            String toDestTime = localDateFormat.format(toDest.getTime());
+
+            //d.setTime(optimalBird);
+            TextView closestBird = v.findViewById(R.id.closest_bird);
+            closestBird.setText("Closest scooter:" + toBirdTime);
+            TextView durationBird = v.findViewById(R.id.duration_bird);
+            durationBird.setText("Destination arrival: " + toDestTime);
+            TextView costBird = v.findViewById(R.id.cost_bird);
+            costBird.setText("Estimated Cost: $" + optimalBirdCost);
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
