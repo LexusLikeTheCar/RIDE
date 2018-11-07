@@ -118,16 +118,9 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             case R.id.updateSettingsButton:
                 editSettings();
                 Toast.makeText(SettingsActivity.this, "Profile updated", Toast.LENGTH_SHORT).show();
-                if(!mEmailField.getText().toString().trim().isEmpty()) {
-                    startActivity(new Intent(this, RiderActivity.class));
-                }
-                else {
-                    startActivity(new Intent(this, LoginActivity.class));
-
-                }
+                startActivity(new Intent(this, RiderActivity.class));
                 break;
         }
     }
 
 }
-
