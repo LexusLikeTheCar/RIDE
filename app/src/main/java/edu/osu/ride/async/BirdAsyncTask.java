@@ -4,13 +4,13 @@ import android.os.AsyncTask;
 
 import java.util.List;
 
-import edu.osu.ride.model.bird.Bird;
+import edu.osu.ride.model.scooter.Scooter;
 import edu.osu.ride.service.BirdService;
 
-public class BirdAsyncTask extends AsyncTask<Void, Void, List<Bird>> {
+public class BirdAsyncTask extends AsyncTask<Void, Void, List<Scooter>> {
 
     public interface BirdResponse {
-        void processFinish(List<Bird> output);
+        void processFinish(List<Scooter> output);
     }
 
     private BirdResponse delegate;
@@ -20,7 +20,7 @@ public class BirdAsyncTask extends AsyncTask<Void, Void, List<Bird>> {
     }
 
     @Override
-    protected List<Bird> doInBackground(Void... ignored) {
+    protected List<Scooter> doInBackground(Void... ignored) {
         try {
             String token = BirdService.generateToken();
             return BirdService.locationResponse(token);
@@ -31,7 +31,7 @@ public class BirdAsyncTask extends AsyncTask<Void, Void, List<Bird>> {
     }
 
     @Override
-    protected void onPostExecute(List<Bird> birdResponse) {
+    protected void onPostExecute(List<Scooter> birdResponse) {
         delegate.processFinish(birdResponse);
     }
 }
