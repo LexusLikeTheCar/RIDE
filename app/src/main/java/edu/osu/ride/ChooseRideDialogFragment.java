@@ -76,15 +76,22 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
     private static final String CLIENT_ID = "Z5wpBCpfdZu0HHWPkQ5Pf9Y3x1utTlRL";
     private static final String REDIRECT_URI = "https://www.uber.com/sign-in/";
     private static final String SERVER_TOKEN = "coaJmlyKfOzo23ScdhVfBCy4o6SNSDQ4zQke-2u-";
+
     private static final String DROPOFF_ADDR = "One Embarcadero Center, San Francisco";
-    private static final Double DROPOFF_LAT = 37.795079;
-    private static final Double DROPOFF_LONG = -122.397805;
+    //private static final Double DROPOFF_LAT = 37.795079; // San Fran
+    //private static final Double DROPOFF_LONG = -122.397805; // San Fran
+    private static final Double DROPOFF_LAT = 40.0049976; // OSU
+    private static final Double DROPOFF_LONG = -83.0077963; // OSU
     private static final String DROPOFF_NICK = "Embarcadero";
     private static final String ERROR_LOG_TAG = "UberSDK-SampleActivity";
+
     private static final String PICKUP_ADDR = "1455 Market Street, San Francisco";
-    private static final Double PICKUP_LAT = 37.775304;
-    private static final Double PICKUP_LONG = -122.417522;
+    //private static final Double PICKUP_LAT = 37.775304; // San Fran
+    //private static final Double PICKUP_LONG = -122.417522; // San Fran
+    private static final Double PICKUP_LAT = 40.0017; // OSU
+    private static final Double PICKUP_LONG = -83.0160; // OSU
     private static final String PICKUP_NICK = "Uber HQ";
+
     private com.uber.sdk.rides.client.SessionConfiguration configuration;
     private static final String TAG = "Rider Dialog Fragment";
     private static final String LYFT_PACKAGE = "me.lyft.android";
