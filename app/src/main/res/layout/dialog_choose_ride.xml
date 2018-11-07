@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:uber="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
+
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/optimal_uber"
@@ -11,12 +13,6 @@
         android:layout_height="wrap_content"
         android:visibility="visible">
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_gravity="center"
-            android:src="@drawable/uber"/>
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:orientation="vertical"
@@ -24,43 +20,18 @@
             android:layout_height="wrap_content"
             android:layout_weight="3">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                android:layout_marginBottom="4dp"
-                android:textSize="16dp"
-                android:textStyle="bold"
-                android:text="Uber" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Driver arrival: 12:35 PM" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Destination arrival: 12:40 PM" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Estimated cost $6.42" />
 
         </LinearLayout>
-
-        <Button
+        <!--TODO:fix uber look-->
+        <com.uber.sdk.android.rides.RideRequestButton
             android:id="@+id/uber_app"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_gravity="center"
-            android:text="Open&#10;app"
-            android:background="@drawable/filtered_off"
-            android:textColor="@color/textPrimary" />
+            uber:ub__style="white"
+            android:background="@drawable/filtered_off" />
 
     </LinearLayout>
 
@@ -76,12 +47,6 @@
         android:layout_height="wrap_content"
         android:visibility="visible">
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_gravity="center"
-            android:src="@drawable/lyft"/>
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:orientation="vertical"
@@ -96,28 +61,12 @@
                 android:layout_marginLeft="4dp"
                 android:layout_marginRight="4dp"
                 android:layout_marginBottom="4dp"
-                android:textSize="16dp"
-                android:textStyle="bold"
-                android:text="Lyft" />
+                android:textSize="16dp" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Driver arrival: 12:42 PM" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Destination arrival: 12:47 PM" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Estimated cost $5.76" />
 
         </LinearLayout>
 
-        <Button
+        <com.lyft.lyftbutton.LyftButton
             android:id="@+id/lyft_app"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

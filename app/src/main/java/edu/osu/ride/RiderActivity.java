@@ -2,6 +2,7 @@ package edu.osu.ride;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -59,7 +60,7 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
     private Button mFilterRidesBirdButton;
     private Button mFilterRidesLimeButton;
     private Button mFindRidesButton;
-
+    private Button userIcon;
     private Boolean mAllFiltered = true;
     private Boolean mUberFiltered = false;
     private Boolean mLyftFiltered = false;
@@ -160,7 +161,8 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
 
         mFindRidesButton = findViewById(R.id.find_rides);
         mFindRidesButton.setOnClickListener(this);
-
+        userIcon = findViewById(R.id.user_icon);
+        userIcon.setOnClickListener(this);
         mShowBirds = false;
     }
 
@@ -308,12 +310,15 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
                 if (mAllFiltered) {
                     new ResponseAggregatorAsyncTask(RiderActivity.this).execute();
                 } else {
-                    // TODO: Switch back to using below method once all ride services are implemented
-                    /*new ResponseAggregatorAsyncTask(RiderActivity.this,
-                        mBirdFiltered, mLimeFiltered, mUberFiltered, mLyftFiltered).execute();*/
 
-                    new ResponseAggregatorAsyncTask(RiderActivity.this).execute(); // TEMPORARY WORKAROUND
+                    new ResponseAggregatorAsyncTask(RiderActivity.this,
+                        mBirdFiltered, mLimeFiltered, mUberFiltered, mLyftFiltered).execute();
+
+                    //new ResponseAggregatorAsyncTask(RiderActivity.this).execute(); // TEMPORARY WORKAROUND
                 }
+                break;
+            case R.id.user_icon:
+                startActivity(new Intent(this, SettingsActivity.class));
                 break;
         }
     }
