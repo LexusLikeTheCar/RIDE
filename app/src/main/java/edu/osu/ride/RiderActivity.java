@@ -174,12 +174,14 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
                             .setIcon(BitmapDescriptorFactory.fromResource(markerIconId));
                 }
             }
+            findViewById(R.id.settings_and_destination_search_bar).setVisibility(GONE);
             mFindRidesButton.setVisibility(GONE);
             findViewById(R.id.filters).setVisibility(GONE);
             mRideOptionsButton.setVisibility(VISIBLE);
             Button openScooterAppBtn = mShowBirds ? mOpenBirdAppButton : mOpenLimeAppButton;
             openScooterAppBtn.setVisibility(VISIBLE);
         } else {
+            findViewById(R.id.settings_and_destination_search_bar).setVisibility(VISIBLE);
             mFindRidesButton.setVisibility(VISIBLE);
             findViewById(R.id.filters).setVisibility(VISIBLE);
             mRideOptionsButton.setVisibility(GONE);
