@@ -236,16 +236,19 @@
                 android:text="Lime" />
 
             <TextView
+                android:id="@+id/closest_lime"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Closest scooter: 12:38 PM" />
 
             <TextView
+                android:id="@+id/duration_lime"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Destination arrival: 12:44 PM" />
 
             <TextView
+                android:id="@+id/cost_lime"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Estimated cost $1.15" />

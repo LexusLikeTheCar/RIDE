@@ -68,6 +68,10 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
     private int optimalBirdDest;
     private String optimalBirdCost;
 
+    private int optimalLime;
+    private int optimalLimeDest;
+    private String optimalLimeCost;
+
     private Activity mActivity;
     private LinearLayout mOptimalUber;
     private LinearLayout mOptimalLyft;
@@ -123,6 +127,11 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
             optimalBirdCost = Double.toString(getArguments().getDouble("birdCost"));
         }
 
+        if (mLimeFiltered) {
+            optimalLime = (int)(getArguments().getDouble("limeDuration"));
+            optimalLimeDest = (int)(getArguments().getDouble("limeDestination"));
+            optimalLimeCost = Double.toString(getArguments().getDouble("limeCost"));
+        }
 
     }
 
@@ -163,13 +172,32 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
             String toBirdTime = localDateFormat.format(toBird.getTime());
             String toDestTime = localDateFormat.format(toDest.getTime());
 
-            //d.setTime(optimalBird);
             TextView closestBird = v.findViewById(R.id.closest_bird);
             closestBird.setText("Closest scooter:" + toBirdTime);
             TextView durationBird = v.findViewById(R.id.duration_bird);
             durationBird.setText("Destination arrival: " + toDestTime);
             TextView costBird = v.findViewById(R.id.cost_bird);
             costBird.setText("Estimated Cost: $" + optimalBirdCost);
+        }
+
+        if(mLimeFiltered) {
+            Calendar toLime = Calendar.getInstance();
+            toLime.add(Calendar.HOUR, optimalLime/60);
+            toLime.add(Calendar.MINUTE, optimalLime%60);
+            Calendar toDest = Calendar.getInstance();
+            toDest.add(Calendar.HOUR, optimalLimeDest/60);
+            toDest.add(Calendar.MINUTE, optimalLimeDest%60);
+
+            SimpleDateFormat localDateFormat = new SimpleDateFormat("KK:mm a");
+            String toLimeTime = localDateFormat.format(toLime.getTime());
+            String toDestTime = localDateFormat.format(toDest.getTime());
+
+            TextView closestLime = v.findViewById(R.id.closest_lime);
+            closestLime.setText("Closest scooter:" + toLimeTime);
+            TextView durationLime = v.findViewById(R.id.duration_lime);
+            durationLime.setText("Destination arrival: " + toDestTime);
+            TextView costLime = v.findViewById(R.id.cost_lime);
+            costLime.setText("Estimated Cost: $" + optimalLimeCost);
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
