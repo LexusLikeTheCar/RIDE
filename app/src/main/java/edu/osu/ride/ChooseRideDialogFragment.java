@@ -18,40 +18,17 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
-import java.util.Date;
 
-import com.google.android.gms.common.api.Scope;
 import com.lyft.lyftbutton.LyftButton;
 import com.lyft.lyftbutton.RideParams;
 import com.lyft.lyftbutton.RideTypeEnum;
 import com.lyft.networking.ApiConfig;
-import com.uber.sdk.android.core.auth.AccessTokenManager;
-import com.uber.sdk.android.core.auth.LoginManager;
 import com.uber.sdk.android.rides.RideParameters;
 import com.uber.sdk.android.rides.RideRequestButton;
-import com.uber.sdk.core.auth.AccessTokenStorage;
 import com.uber.sdk.rides.client.ServerTokenSession;
 import com.uber.sdk.rides.client.SessionConfiguration;
-import com.uber.sdk.android.core.Deeplink;
-import com.uber.sdk.android.core.auth.AccessTokenManager;
-import com.uber.sdk.android.core.auth.AuthenticationError;
-import com.uber.sdk.android.rides.RideParameters;
-import com.uber.sdk.android.rides.RideRequestActivity;
-import com.uber.sdk.android.rides.RideRequestActivityBehavior;
-import com.uber.sdk.android.rides.RideRequestButton;
-import com.uber.sdk.android.rides.RideRequestButtonCallback;
-import com.uber.sdk.android.rides.RideRequestViewError;
-import com.uber.sdk.core.auth.AccessToken;
-import com.uber.sdk.core.auth.AccessTokenStorage;
-import com.uber.sdk.rides.client.error.ApiError;
-
-import java.util.Arrays;
 
 import static com.uber.sdk.android.core.utils.Preconditions.checkNotNull;
 import static com.uber.sdk.android.core.utils.Preconditions.checkState;
@@ -81,26 +58,9 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
     private static final String REDIRECT_URI = "https://www.uber.com/sign-in/";
     private static final String SERVER_TOKEN = "coaJmlyKfOzo23ScdhVfBCy4o6SNSDQ4zQke-2u-";
 
-    private static final String DROPOFF_ADDR = "One Embarcadero Center, San Francisco";
-    //private static final Double DROPOFF_LAT = 37.795079; // San Fran
-    //private static final Double DROPOFF_LONG = -122.397805; // San Fran
-    private static final Double DROPOFF_LAT = 40.0049976; // OSU
-    private static final Double DROPOFF_LONG = -83.0077963; // OSU
-    private static final String DROPOFF_NICK = "Embarcadero";
-    private static final String ERROR_LOG_TAG = "UberSDK-SampleActivity";
-
-    private static final String PICKUP_ADDR = "1455 Market Street, San Francisco";
-    //private static final Double PICKUP_LAT = 37.775304; // San Fran
-    //private static final Double PICKUP_LONG = -122.417522; // San Fran
-    private static final Double PICKUP_LAT = 40.0017; // OSU
-    private static final Double PICKUP_LONG = -83.0160; // OSU
-    private static final String PICKUP_NICK = "Uber HQ";
-
     private com.uber.sdk.rides.client.SessionConfiguration configuration;
     private static final String TAG = "Rider Dialog Fragment";
     private static final String LYFT_PACKAGE = "me.lyft.android";
-    private AccessTokenStorage accessTokenStorage;
-    private LoginManager loginManager;
     private Button mShowLime;
     private Button mShowBird;
 
@@ -160,7 +120,7 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
             mOptimalLime.setVisibility(View.GONE);
         }
 
-        if(mBirdFiltered) {
+        if (mBirdFiltered) {
             Calendar toBird = Calendar.getInstance();
             toBird.add(Calendar.HOUR, optimalBird/60);
             toBird.add(Calendar.MINUTE, optimalBird%60);
@@ -205,6 +165,7 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 removeDim();
+                getRiderActivity().updateMap();
             }
         });
 
@@ -218,6 +179,12 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
         mShowLime = v.findViewById(R.id.show_limes);
         mShowLime.setOnClickListener(this);
 
+        Double dropoffLat = getRiderActivity().getDestination().getLatLng().latitude;
+        Double dropoffLong = getRiderActivity().getDestination().getLatLng().longitude;
+
+        Double pickupLat = getRiderActivity().getLastKnownLocation().getLatitude();
+        Double pickupLong = getRiderActivity().getLastKnownLocation().getLongitude();
+
 
         //TODO: ensure these work
         //uber
@@ -228,16 +195,12 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
                 .build();
         validateConfiguration(configuration);
 
-
-        accessTokenStorage = new AccessTokenManager(mActivity);
-        //UberSdk.initialize(configuration);
-
         ServerTokenSession session = new ServerTokenSession(configuration);
 
 
         RideParameters rideParametersCheapestProduct = new RideParameters.Builder()
-                .setPickupLocation(PICKUP_LAT, PICKUP_LONG, PICKUP_NICK, PICKUP_ADDR)
-                .setDropoffLocation(DROPOFF_LAT, DROPOFF_LONG, DROPOFF_NICK, DROPOFF_ADDR)
+                .setPickupLocation(pickupLat, pickupLong, null, null)
+                .setDropoffLocation(dropoffLat, dropoffLong, null, null)
                 .build();
 
         // This button demonstrates deep-linking to the Uber app (default button behavior).
@@ -258,8 +221,8 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
         lyftButton.setApiConfig(apiConfig);
 
         RideParams.Builder rideParamsBuilder = new RideParams.Builder()
-                .setPickupLocation(PICKUP_LAT, PICKUP_LONG)
-                .setDropoffLocation(DROPOFF_LAT, DROPOFF_LONG);
+                .setPickupLocation(pickupLat, pickupLong)
+                .setDropoffLocation(dropoffLat, dropoffLong);
         rideParamsBuilder.setRideTypeEnum(RideTypeEnum.CLASSIC);
 
         lyftButton.setRideParams(rideParamsBuilder.build());

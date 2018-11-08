@@ -1,5 +1,6 @@
 package edu.osu.ride.async;
 
+import android.location.Location;
 import android.os.AsyncTask;
 
 import java.util.List;
@@ -7,7 +8,7 @@ import java.util.List;
 import edu.osu.ride.model.scooter.Scooter;
 import edu.osu.ride.service.BirdService;
 
-public class BirdAsyncTask extends AsyncTask<Void, Void, List<Scooter>> {
+public class BirdAsyncTask extends AsyncTask<Location, Void, List<Scooter>> {
 
     public interface BirdResponse {
         void processFinish(List<Scooter> output);
@@ -20,10 +21,10 @@ public class BirdAsyncTask extends AsyncTask<Void, Void, List<Scooter>> {
     }
 
     @Override
-    protected List<Scooter> doInBackground(Void... ignored) {
+    protected List<Scooter> doInBackground(Location... locations) {
         try {
             String token = BirdService.generateToken();
-            return BirdService.locationResponse(token);
+            return BirdService.locationResponse(token, locations[0]);
         } catch (Exception e) {
             e.printStackTrace();
         }
