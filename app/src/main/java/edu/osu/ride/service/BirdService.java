@@ -14,9 +14,9 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
-import edu.osu.ride.model.bird.Bird;
-import edu.osu.ride.model.bird.BirdToken;
-import edu.osu.ride.model.bird.Birds;
+import edu.osu.ride.model.scooter.Scooter;
+import edu.osu.ride.model.scooter.BirdToken;
+import edu.osu.ride.model.scooter.Scooters;
 
 import java.util.HashMap;
 import java.util.List;
@@ -54,7 +54,7 @@ public class BirdService {
                 .token;
     }
 
-    public static List<Bird> locationResponse(String token) throws Exception {
+    public static List<Scooter> locationResponse(String token) throws Exception {
         String locationVal = "{\"latitude\":40.001733,\"longitude\":-83.016041,\"altitude\":227,\"accuracy\":100,\"speed\":-1,\"heading\":-1}";
 
         HttpHeaders headers = new HttpHeaders();
@@ -71,7 +71,7 @@ public class BirdService {
         return requestFactory.buildGetRequest(birdLocationUrl)
                 .setHeaders(headers)
                 .execute()
-                .parseAs(Birds.class)
+                .parseAs(Scooters.class)
                 .birds;
     }
 

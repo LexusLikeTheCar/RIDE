@@ -136,6 +136,11 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
 
         mShowBird = v.findViewById(R.id.show_birds);
         mShowBird.setOnClickListener(this);
+
+        mShowLime = v.findViewById(R.id.show_limes);
+        mShowLime.setOnClickListener(this);
+
+
         //TODO: ensure these work
         //uber
          configuration = new SessionConfiguration.Builder()
@@ -192,6 +197,14 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
                 getDialog().dismiss();
                 removeDim();
                 getRiderActivity().mShowBirds = true;
+                getRiderActivity().showOpenBirdButton();
+                getRiderActivity().updateMap();
+                break;
+            case R.id.show_limes:
+                getDialog().dismiss();
+                removeDim();
+                getRiderActivity().mShowLimes = true;
+                getRiderActivity().showOpenLimeButton();
                 getRiderActivity().updateMap();
                 break;
             case R.id.lyft_app:
