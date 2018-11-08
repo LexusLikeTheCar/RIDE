@@ -37,6 +37,7 @@ import edu.osu.ride.async.ResponseAggregatorAsyncTask;
 import edu.osu.ride.model.scooter.Scooter;
 
 import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 
 public class RiderActivity extends FragmentActivity implements OnMyLocationButtonClickListener,
         OnClickListener, OnMapReadyCallback {
@@ -76,9 +77,10 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
     private Button mFilterRidesBirdButton;
     private Button mFilterRidesLimeButton;
     private Button mFindRidesButton;
-    private Button userIcon;
+    private Button mUserIcon;
     private Button mOpenBirdAppButton;
     private Button mOpenLimeAppButton;
+    private Button mRideOptionsButton;
 
     private Boolean mAllFiltered = true;
     private Boolean mUberFiltered = false;
@@ -152,10 +154,19 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
                             .setIcon(BitmapDescriptorFactory.fromResource(markerIconId));
                 }
             }
-            findViewById(R.id.find_rides).setVisibility(GONE);
+            mFindRidesButton.setVisibility(GONE);
             findViewById(R.id.filters).setVisibility(GONE);
             findViewById(R.id.destination).setVisibility(GONE);
-            findViewById(R.id.ride_options).setVisibility(View.VISIBLE);
+            mRideOptionsButton.setVisibility(VISIBLE);
+            Button openScooterAppBtn = mShowBirds ? mOpenBirdAppButton : mOpenLimeAppButton;
+            openScooterAppBtn.setVisibility(VISIBLE);
+        } else {
+            mFindRidesButton.setVisibility(VISIBLE);
+            findViewById(R.id.filters).setVisibility(VISIBLE);
+            findViewById(R.id.destination).setVisibility(VISIBLE);
+            mRideOptionsButton.setVisibility(GONE);
+            mOpenBirdAppButton.setVisibility(GONE);
+            mOpenLimeAppButton.setVisibility(GONE);
         }
     }
 
@@ -187,8 +198,8 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
         mFindRidesButton = findViewById(R.id.find_rides);
         mFindRidesButton.setOnClickListener(this);
 
-        userIcon = findViewById(R.id.user_icon);
-        userIcon.setOnClickListener(this);
+        mUserIcon = findViewById(R.id.user_icon);
+        mUserIcon.setOnClickListener(this);
 
         mOpenBirdAppButton = findViewById(R.id.open_bird);
         mOpenBirdAppButton.setOnClickListener(this);
@@ -196,10 +207,13 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
         mOpenLimeAppButton = findViewById(R.id.open_lime);
         mOpenLimeAppButton.setOnClickListener(this);
 
+        mRideOptionsButton = findViewById(R.id.ride_options);
+        mRideOptionsButton.setOnClickListener(this);
+
         mShowBirds = false;
     }
 
-    public void responseAggregationFinished() {
+    public void launchRideOptionsDialog() {
         if (mAllFiltered || mBirdFiltered) {
             List<LatLng> birdMarkers = getScooterMarkers(mBirds);
             LatLng origin = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
@@ -369,45 +383,29 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
                 startActivity(new Intent(this, SettingsActivity.class));
                 break;
             case R.id.open_bird:
-                deepLinkIntoBird();
+                deepLink(BIRD_PACKAGE);
                 break;
             case R.id.open_lime:
-                deepLinkIntoLime();
+                deepLink(LIME_PACKAGE);
+                break;
+            case R.id.ride_options:
+                mShowLimes = false;
+                mShowBirds = false;
+                updateMap();
+                findViewById(R.id.dim).setVisibility(View.VISIBLE);
+                launchRideOptionsDialog();
                 break;
         }
     }
 
-    public void showOpenBirdButton() {
-        mFindRidesButton.setVisibility(View.GONE);
-        mOpenBirdAppButton.setVisibility(View.VISIBLE);
-    }
-
-    public void showOpenLimeButton() {
-        mFindRidesButton.setVisibility(View.GONE);
-        mOpenLimeAppButton.setVisibility(View.VISIBLE);
-    }
-
-    private void deepLinkIntoBird() {
-        if (isPackageInstalled(this, BIRD_PACKAGE)) {
-            Intent intent = getPackageManager().getLaunchIntentForPackage(BIRD_PACKAGE);
+    private void deepLink(String packageName) {
+        if (isPackageInstalled(this, packageName)) {
+            Intent intent = getPackageManager().getLaunchIntentForPackage(packageName);
             startActivity(intent);
         } else {
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setData(Uri.parse(
-                    "https://play.google.com/store/apps/details?id=co.bird.android"));
-            intent.setPackage("com.android.vending");
-            startActivity(intent);
-        }
-    }
-
-    private void deepLinkIntoLime() {
-        if (isPackageInstalled(this, LIME_PACKAGE)) {
-            Intent intent = getPackageManager().getLaunchIntentForPackage(LIME_PACKAGE);
-            startActivity(intent);
-        } else {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse(
-                    "https://play.google.com/store/apps/details?id=com.limebike"));
+                    "https://play.google.com/store/apps/details?id=" + packageName));
             intent.setPackage("com.android.vending");
             startActivity(intent);
         }

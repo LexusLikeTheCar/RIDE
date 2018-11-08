@@ -80,7 +80,7 @@ public class ResponseAggregatorAsyncTask extends AsyncTask<Void, Void, Void> {
     private void checkAllResponses() {
         if (mBirdDone && mLimeDone && mUberDone && mLyftDone) {
             mFindRidesProgressBar.setVisibility(View.GONE);
-            mActivity.responseAggregationFinished();
+            mActivity.launchRideOptionsDialog();
         }
     }
 
