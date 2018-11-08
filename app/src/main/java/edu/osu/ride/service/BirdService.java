@@ -1,5 +1,8 @@
 package edu.osu.ride.service;
 
+import android.location.Location;
+import android.util.Log;
+
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.http.HttpRequest;
@@ -54,8 +57,9 @@ public class BirdService {
                 .token;
     }
 
-    public static List<Scooter> locationResponse(String token) throws Exception {
-        String locationVal = "{\"latitude\":40.001733,\"longitude\":-83.016041,\"altitude\":227,\"accuracy\":100,\"speed\":-1,\"heading\":-1}";
+    public static List<Scooter> locationResponse(String token, Location location) throws Exception {
+        String locationVal = "{\"latitude\":" + location.getLatitude() + ",\"longitude\":" + location.getLongitude()
+                + ",\"altitude\":" + location.getAltitude() + ",\"accuracy\":100,\"speed\":-1,\"heading\":-1}";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setAuthorization("Bird " + token);
@@ -63,7 +67,8 @@ public class BirdService {
         headers.put("Device-id", UUID.randomUUID().toString());
         headers.put("App-Version", "3.0.5");
 
-        GenericUrl birdLocationUrl = new GenericUrl("https://api.bird.co/bird/nearby?latitude=40.001733&longitude=-83.016041&radius=1000");
+        GenericUrl birdLocationUrl = new GenericUrl("https://api.bird.co/bird/nearby?latitude="
+                + location.getLatitude() + "&longitude=" + location.getLongitude() + "&radius=1000");
 
         // NOTE: Comment out above URL and use this URL if testing after Bird's hours of operations
         // GenericUrl birdLocationUrl = new GenericUrl("https://putsreq.com/fr0S8chPbKIQTpfBA7Bd");

@@ -53,7 +53,7 @@ public class ResponseAggregatorAsyncTask extends AsyncTask<Void, Void, Void> {
                     mActivity.setBirds(birds);
                     checkAllResponses();
                 }
-            }).execute();
+            }).execute(mActivity.getLastKnownLocation());
         }
 
         if (!mLimeDone) {

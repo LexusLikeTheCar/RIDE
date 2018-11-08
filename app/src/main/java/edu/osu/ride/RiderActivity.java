@@ -14,13 +14,19 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
+import android.widget.Toast;
 
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
+import com.google.android.gms.location.places.ui.SupportPlaceAutocompleteFragment;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
@@ -50,30 +56,37 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
     private static final String LIME_PACKAGE = "com.limebike";
     private static final String TAG = "RiderActivity";
 
-    private Location lastKnownLocation;
+    private Location mLastKnownLocation;
+    public Location getLastKnownLocation() {
+        return mLastKnownLocation;
+    }
 
     private GoogleMap mMap;
     private View mMapView;
+    private SupportPlaceAutocompleteFragment mAutocompleteFragment;
 
     private List<Scooter> mBirds;
-
     public void setBirds(List<Scooter> birds) {
         mBirds = birds;
+    }
+
+    private List<Scooter> mLimes;
+    public void setLimes(List<Scooter> limes) {
+        mLimes = limes;
     }
 
     private double optimalBird = Double.MAX_VALUE;
     private double optimalBirdDest = Double.MAX_VALUE;
     private double optimalBirdCost = Double.MAX_VALUE;
 
-    private List<Scooter> mLimes;
-
-    public void setLimes(List<Scooter> limes) {
-        mLimes = limes;
-    }
-
     private double optimalLime = Double.MAX_VALUE;
     private double optimalLimeDest = Double.MAX_VALUE;
     private double optimalLimeCost = Double.MAX_VALUE;
+
+    private Place mDestination;
+    public Place getDestination() {
+        return mDestination;
+    }
 
     private LocationManager mLocationManager;
     private LocationListener mLocationListener;
@@ -108,8 +121,8 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
                     mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 50000, 15, mLocationListener);
                     mMap.setMyLocationEnabled(true);
                     mMap.setOnMyLocationButtonClickListener(this);
-                    lastKnownLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                    initializeMap(lastKnownLocation);
+                    mLastKnownLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    initializeMap(mLastKnownLocation);
                 }
             }
         }
@@ -163,14 +176,12 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
             }
             mFindRidesButton.setVisibility(GONE);
             findViewById(R.id.filters).setVisibility(GONE);
-            findViewById(R.id.destination).setVisibility(GONE);
             mRideOptionsButton.setVisibility(VISIBLE);
             Button openScooterAppBtn = mShowBirds ? mOpenBirdAppButton : mOpenLimeAppButton;
             openScooterAppBtn.setVisibility(VISIBLE);
         } else {
             mFindRidesButton.setVisibility(VISIBLE);
             findViewById(R.id.filters).setVisibility(VISIBLE);
-            findViewById(R.id.destination).setVisibility(VISIBLE);
             mRideOptionsButton.setVisibility(GONE);
             mOpenBirdAppButton.setVisibility(GONE);
             mOpenLimeAppButton.setVisibility(GONE);
@@ -186,6 +197,26 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
                 .findFragmentById(R.id.map);
         mMapView = mapFragment.getView();
         mapFragment.getMapAsync(this);
+
+        mAutocompleteFragment = (SupportPlaceAutocompleteFragment)
+                getSupportFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+
+        mAutocompleteFragment.setHint("Destination");
+
+        mAutocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                mDestination = place;
+            }
+
+            @Override
+            public void onError(Status status) {
+                Toast.makeText(RiderActivity.this, "An error occurred: " + status, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        mAutocompleteFragment.getView().findViewById(R.id.place_autocomplete_clear_button)
+                .setOnClickListener(this);
 
         mFilterRidesAllButton = findViewById(R.id.all_rides_filter);
         mFilterRidesAllButton.setOnClickListener(this);
@@ -221,14 +252,14 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
     }
 
     public void launchRideOptionsDialog() {
-        LatLng origin = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
+        LatLng origin = new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
 
         if (mAllFiltered || mBirdFiltered) {
             optimalBirdDest = Double.MAX_VALUE;
             List<LatLng> birdMarkers = getScooterMarkers(mBirds);
             if (birdMarkers.size() > 0) {
                 for (LatLng bird : birdMarkers) {
-                    getDestinationInfo(origin, bird, "Bird");
+                    getDestinationInfo(origin, bird, BIRD);
                 }
             }
         }
@@ -238,7 +269,7 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
             List<LatLng> limeMarkers = getScooterMarkers(mLimes);
             if (limeMarkers.size() > 0) {
                 for (LatLng lime : limeMarkers) {
-                    getDestinationInfo(origin, lime, "Lime");
+                    getDestinationInfo(origin, lime, LIME);
                 }
             }
         }
@@ -297,8 +328,8 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
             mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 15, mLocationListener);
             mMap.setMyLocationEnabled(true);
             mMap.setOnMyLocationButtonClickListener(this);
-            lastKnownLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            initializeMap(lastKnownLocation);
+            mLastKnownLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            initializeMap(mLastKnownLocation);
         }
     }
 
@@ -399,7 +430,14 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
                 toggleFilter(LIME);
                 break;
             case R.id.find_rides:
-                launchResponseAggregatorTask();
+                if (mDestination == null) {
+                    Toast.makeText(this, "Must select a destination", Toast.LENGTH_SHORT).show();
+                } else if (!mAllFiltered && !mUberFiltered && !mLyftFiltered && !mBirdFiltered && !mLimeFiltered) {
+                    Toast.makeText(this, "Must select filter(s)", Toast.LENGTH_SHORT).show();
+                } else {
+                    mFindRidesButton.setVisibility(GONE);
+                    launchResponseAggregatorTask();
+                }
                 break;
             case R.id.user_icon:
                 startActivity(new Intent(this, SettingsActivity.class));
@@ -415,6 +453,10 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
                 mShowBirds = false;
                 updateMap();
                 launchResponseAggregatorTask();
+                break;
+            case R.id.place_autocomplete_clear_button:
+                mDestination = null;
+                mAutocompleteFragment.setText("");
                 break;
         }
     }
@@ -447,7 +489,7 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
         final double earthRadius = 3961; // mi
         final double averageWalkingSpeed = 3.1; // mph
         final double averageScooterSpeed = 15; // mph
-        final LatLng destination = new LatLng(40.0049976, -83.0077963);
+        final LatLng destination = new LatLng(mDestination.getLatLng().latitude, mDestination.getLatLng().longitude);
 
         double dLon = (scooter.longitude - origin.longitude) * (Math.PI / 180); // Radians
         double dLat = (scooter.latitude - origin.latitude) * (Math.PI / 180); // Radians
@@ -468,13 +510,13 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
 
         System.out.println("dest: " + (distanceDest + distanceBird) + "mi, " + durationDest + "min");
 
-        if ((durationDest < optimalBirdDest) && (service == "Bird")) {
+        if ((durationDest < optimalBirdDest) && (service.equals(BIRD))) {
             optimalBird = Math.round(durationBird);
             optimalBirdDest = Math.round(durationDest);
             optimalBirdCost = cost;
         }
 
-        if ((durationDest < optimalLimeDest) && (service == "Lime")) {
+        if ((durationDest < optimalLimeDest) && (service.equals(LIME))) {
             optimalLime = Math.round(durationBird);
             optimalLimeDest = Math.round(durationDest);
             optimalLimeCost = cost;
