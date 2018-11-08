@@ -9,7 +9,8 @@ import java.util.List;
 import edu.osu.ride.R;
 import edu.osu.ride.RiderActivity;
 import edu.osu.ride.async.BirdAsyncTask.BirdResponse;
-import edu.osu.ride.model.bird.Bird;
+import edu.osu.ride.async.LimeAsyncTask.LimeResponse;
+import edu.osu.ride.model.scooter.Scooter;
 
 public class ResponseAggregatorAsyncTask extends AsyncTask<Void, Void, Void> {
 
@@ -27,7 +28,7 @@ public class ResponseAggregatorAsyncTask extends AsyncTask<Void, Void, Void> {
         // TODO: Need to make this work with all booleans; will look like call below
         // this(activity, true, true, true, true);
 
-        this(activity, true, false, false, false);
+        this(activity, true, true, false, false);
     }
 
     public ResponseAggregatorAsyncTask(RiderActivity activity, boolean birdRequest, boolean limeRequest,
@@ -48,9 +49,20 @@ public class ResponseAggregatorAsyncTask extends AsyncTask<Void, Void, Void> {
         if (!mBirdDone) {
             new BirdAsyncTask(new BirdResponse() {
                 @Override
-                public void processFinish(List<Bird> birds) {
+                public void processFinish(List<Scooter> birds) {
                     mBirdDone = true;
                     mActivity.setBirds(birds);
+                    checkAllResponses();
+                }
+            }).execute();
+        }
+
+        if (!mLimeDone) {
+            new LimeAsyncTask(new LimeResponse() {
+                @Override
+                public void processFinish(List<Scooter> limes) {
+                    mLimeDone = true;
+                    mActivity.setLimes(limes);
                     checkAllResponses();
                 }
             }).execute();

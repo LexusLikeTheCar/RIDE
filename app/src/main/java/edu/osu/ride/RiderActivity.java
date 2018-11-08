@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -33,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.osu.ride.async.ResponseAggregatorAsyncTask;
-import edu.osu.ride.model.bird.Bird;
+import edu.osu.ride.model.scooter.Scooter;
 
 import static android.view.View.GONE;
 
@@ -46,16 +47,25 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
     private static final String LIME = "Lime";
 
     private Location lastKnownLocation;
+    private static final String BIRD_PACKAGE = "co.bird.android";
+    private static final String LIME_PACKAGE = "com.limebike";
+    private static final String TAG = "RiderActivity";
+
     private GoogleMap mMap;
     private View mMapView;
 
-    private List<Bird> mBirds;
-    public void setBirds(List<Bird> birds) {
+    private List<Scooter> mBirds;
+    public void setBirds(List<Scooter> birds) {
         mBirds = birds;
     }
     private double optimalBird = Double.MAX_VALUE;
     private double optimalBirdDest = Double.MAX_VALUE;
     private double optimalBirdCost = Double.MAX_VALUE;
+
+    private List<Scooter> mLimes;
+    public void setLimes(List<Scooter> limes) {
+        mLimes = limes;
+    }
 
     private LocationManager mLocationManager;
     private LocationListener mLocationListener;
@@ -67,6 +77,9 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
     private Button mFilterRidesLimeButton;
     private Button mFindRidesButton;
     private Button userIcon;
+    private Button mOpenBirdAppButton;
+    private Button mOpenLimeAppButton;
+
     private Boolean mAllFiltered = true;
     private Boolean mUberFiltered = false;
     private Boolean mLyftFiltered = false;
@@ -74,6 +87,7 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
     private Boolean mLimeFiltered = false;
 
     public boolean mShowBirds;
+    public boolean mShowLimes;
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -127,14 +141,15 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
     public void updateMap() {
         mMap.clear();
 
-        if (mShowBirds) {
-            List<LatLng> birdMarkers = getBirdMarkers(mBirds);
+        if (mShowBirds || mShowLimes) {
+            List<LatLng> markers = getScooterMarkers(mShowBirds ? mBirds : mLimes);
+            int markerIconId = mShowBirds ? R.mipmap.bird_location : R.mipmap.lime_location;
 
-            if (birdMarkers.size() > 0) {
-                for (LatLng bird : birdMarkers) {
-                    MarkerOptions birdMarkerOpts = new MarkerOptions().position(bird);
-                    mMap.addMarker(birdMarkerOpts)
-                            .setIcon(BitmapDescriptorFactory.fromResource(R.mipmap.bird_location));
+            if (markers.size() > 0) {
+                for (LatLng m : markers) {
+                    MarkerOptions markerOpts = new MarkerOptions().position(m);
+                    mMap.addMarker(markerOpts)
+                            .setIcon(BitmapDescriptorFactory.fromResource(markerIconId));
                 }
             }
             findViewById(R.id.find_rides).setVisibility(GONE);
@@ -171,14 +186,22 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
 
         mFindRidesButton = findViewById(R.id.find_rides);
         mFindRidesButton.setOnClickListener(this);
+
         userIcon = findViewById(R.id.user_icon);
         userIcon.setOnClickListener(this);
+
+        mOpenBirdAppButton = findViewById(R.id.open_bird);
+        mOpenBirdAppButton.setOnClickListener(this);
+
+        mOpenLimeAppButton = findViewById(R.id.open_lime);
+        mOpenLimeAppButton.setOnClickListener(this);
+
         mShowBirds = false;
     }
 
     public void responseAggregationFinished() {
         if (mAllFiltered || mBirdFiltered) {
-            List<LatLng> birdMarkers = getBirdMarkers(mBirds);
+            List<LatLng> birdMarkers = getScooterMarkers(mBirds);
             LatLng origin = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
 
             if (birdMarkers.size() > 0) {
@@ -236,14 +259,14 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
         }
     }
 
-    private List<LatLng> getBirdMarkers(List<Bird> birds) {
-        List<LatLng> birdMarkers = new ArrayList<>();
+    private List<LatLng> getScooterMarkers(List<Scooter> scooters) {
+        List<LatLng> markers = new ArrayList<>();
 
-        for (Bird bird : birds) {
-            birdMarkers.add(new LatLng(bird.location.latitude, bird.location.longitude));
+        for (Scooter scooter : scooters) {
+            markers.add(new LatLng(scooter.location.latitude, scooter.location.longitude));
         }
 
-        return birdMarkers;
+        return markers;
     }
 
     private void toggleAll() {
@@ -336,7 +359,6 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
                 if (mAllFiltered) { ;
                     new ResponseAggregatorAsyncTask(RiderActivity.this).execute();
                 } else {
-
                     new ResponseAggregatorAsyncTask(RiderActivity.this,
                         mBirdFiltered, mLimeFiltered, mUberFiltered, mLyftFiltered).execute();
 
@@ -346,6 +368,48 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
             case R.id.user_icon:
                 startActivity(new Intent(this, SettingsActivity.class));
                 break;
+            case R.id.open_bird:
+                deepLinkIntoBird();
+                break;
+            case R.id.open_lime:
+                deepLinkIntoLime();
+                break;
+        }
+    }
+
+    public void showOpenBirdButton() {
+        mFindRidesButton.setVisibility(View.GONE);
+        mOpenBirdAppButton.setVisibility(View.VISIBLE);
+    }
+
+    public void showOpenLimeButton() {
+        mFindRidesButton.setVisibility(View.GONE);
+        mOpenLimeAppButton.setVisibility(View.VISIBLE);
+    }
+
+    private void deepLinkIntoBird() {
+        if (isPackageInstalled(this, BIRD_PACKAGE)) {
+            Intent intent = getPackageManager().getLaunchIntentForPackage(BIRD_PACKAGE);
+            startActivity(intent);
+        } else {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(
+                    "https://play.google.com/store/apps/details?id=co.bird.android"));
+            intent.setPackage("com.android.vending");
+            startActivity(intent);
+        }
+    }
+
+    private void deepLinkIntoLime() {
+        if (isPackageInstalled(this, LIME_PACKAGE)) {
+            Intent intent = getPackageManager().getLaunchIntentForPackage(LIME_PACKAGE);
+            startActivity(intent);
+        } else {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(
+                    "https://play.google.com/store/apps/details?id=com.limebike"));
+            intent.setPackage("com.android.vending");
+            startActivity(intent);
         }
     }
 
@@ -379,5 +443,16 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
             optimalBirdDest = Math.round(durationDest);
             optimalBirdCost = cost;
         }
+    }
+
+    private boolean isPackageInstalled(Context context, String packageId) {
+        PackageManager pm = context.getPackageManager();
+        try {
+            pm.getPackageInfo(packageId, PackageManager.GET_ACTIVITIES);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            // ignored.
+        }
+        return false;
     }
 }

@@ -121,6 +121,28 @@
     </LinearLayout>
 
     <Button
+        android:id="@+id/open_lime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
+        android:text="Open Lime App"
+        android:background="@drawable/filtered_off"
+        android:textColor="@color/textPrimary"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/open_bird"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
+        android:text="Open Bird App"
+        android:background="@drawable/filtered_off"
+        android:textColor="@color/textPrimary"
+        android:visibility="gone" />
+
+    <Button
         android:id="@+id/find_rides"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

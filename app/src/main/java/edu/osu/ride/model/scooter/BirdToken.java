@@ -1,4 +1,4 @@
-package edu.osu.ride.model.bird;
+package edu.osu.ride.model.scooter;
 
 import com.google.api.client.util.Key;
 
