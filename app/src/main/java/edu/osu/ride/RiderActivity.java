@@ -373,7 +373,7 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
                 toggleFilter(LIME);
                 break;
             case R.id.find_rides:
-                if (mAllFiltered) { ;
+                if (mAllFiltered) {
                     new ResponseAggregatorAsyncTask(RiderActivity.this).execute();
                 } else {
                     new ResponseAggregatorAsyncTask(RiderActivity.this,
