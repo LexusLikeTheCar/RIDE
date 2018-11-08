@@ -40,8 +40,8 @@ public class ResponseAggregatorAsyncTask extends AsyncTask<Void, Void, Void> {
 
         mBirdDone = !birdRequest;
         mLimeDone = !limeRequest;
-        mUberDone = !uberRequest;
-        mLyftDone = !lyftRequest;
+        mUberDone = true;
+        mLyftDone = true;
     }
 
     @Override

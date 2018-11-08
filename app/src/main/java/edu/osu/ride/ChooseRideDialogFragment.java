@@ -16,6 +16,15 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import java.util.Date;
 
 import com.google.android.gms.common.api.Scope;
 import com.lyft.lyftbutton.LyftButton;
@@ -55,6 +64,14 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
     private Boolean mBirdFiltered;
     private Boolean mLimeFiltered;
 
+    private int optimalBird;
+    private int optimalBirdDest;
+    private String optimalBirdCost;
+
+    private int optimalLime;
+    private int optimalLimeDest;
+    private String optimalLimeCost;
+
     private Activity mActivity;
     private LinearLayout mOptimalUber;
     private LinearLayout mOptimalLyft;
@@ -63,15 +80,22 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
     private static final String CLIENT_ID = "Z5wpBCpfdZu0HHWPkQ5Pf9Y3x1utTlRL";
     private static final String REDIRECT_URI = "https://www.uber.com/sign-in/";
     private static final String SERVER_TOKEN = "coaJmlyKfOzo23ScdhVfBCy4o6SNSDQ4zQke-2u-";
+
     private static final String DROPOFF_ADDR = "One Embarcadero Center, San Francisco";
-    private static final Double DROPOFF_LAT = 37.795079;
-    private static final Double DROPOFF_LONG = -122.397805;
+    //private static final Double DROPOFF_LAT = 37.795079; // San Fran
+    //private static final Double DROPOFF_LONG = -122.397805; // San Fran
+    private static final Double DROPOFF_LAT = 40.0049976; // OSU
+    private static final Double DROPOFF_LONG = -83.0077963; // OSU
     private static final String DROPOFF_NICK = "Embarcadero";
     private static final String ERROR_LOG_TAG = "UberSDK-SampleActivity";
+
     private static final String PICKUP_ADDR = "1455 Market Street, San Francisco";
-    private static final Double PICKUP_LAT = 37.775304;
-    private static final Double PICKUP_LONG = -122.417522;
+    //private static final Double PICKUP_LAT = 37.775304; // San Fran
+    //private static final Double PICKUP_LONG = -122.417522; // San Fran
+    private static final Double PICKUP_LAT = 40.0017; // OSU
+    private static final Double PICKUP_LONG = -83.0160; // OSU
     private static final String PICKUP_NICK = "Uber HQ";
+
     private com.uber.sdk.rides.client.SessionConfiguration configuration;
     private static final String TAG = "Rider Dialog Fragment";
     private static final String LYFT_PACKAGE = "me.lyft.android";
@@ -89,12 +113,26 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
         mLyftFiltered = getArguments().getBoolean("lyft");
         mBirdFiltered = getArguments().getBoolean("bird");
         mLimeFiltered = getArguments().getBoolean("lime");
+
         if (mAllFiltered) {
             mUberFiltered = true;
             mLyftFiltered = true;
             mBirdFiltered = true;
             mLimeFiltered = true;
         }
+
+        if (mBirdFiltered) {
+            optimalBird = (int)(getArguments().getDouble("birdDuration"));
+            optimalBirdDest = (int)(getArguments().getDouble("birdDestination"));
+            optimalBirdCost = Double.toString(getArguments().getDouble("birdCost"));
+        }
+
+        if (mLimeFiltered) {
+            optimalLime = (int)(getArguments().getDouble("limeDuration"));
+            optimalLimeDest = (int)(getArguments().getDouble("limeDestination"));
+            optimalLimeCost = Double.toString(getArguments().getDouble("limeCost"));
+        }
+
     }
 
     @Override
@@ -120,6 +158,46 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
         }
         if(!mLimeFiltered) {
             mOptimalLime.setVisibility(View.GONE);
+        }
+
+        if(mBirdFiltered) {
+            Calendar toBird = Calendar.getInstance();
+            toBird.add(Calendar.HOUR, optimalBird/60);
+            toBird.add(Calendar.MINUTE, optimalBird%60);
+            Calendar toDest = Calendar.getInstance();
+            toDest.add(Calendar.HOUR, optimalBirdDest/60);
+            toDest.add(Calendar.MINUTE, optimalBirdDest%60);
+
+            SimpleDateFormat localDateFormat = new SimpleDateFormat("KK:mm a");
+            String toBirdTime = localDateFormat.format(toBird.getTime());
+            String toDestTime = localDateFormat.format(toDest.getTime());
+
+            TextView closestBird = v.findViewById(R.id.closest_bird);
+            closestBird.setText("Closest scooter:" + toBirdTime);
+            TextView durationBird = v.findViewById(R.id.duration_bird);
+            durationBird.setText("Destination arrival: " + toDestTime);
+            TextView costBird = v.findViewById(R.id.cost_bird);
+            costBird.setText("Estimated Cost: $" + optimalBirdCost);
+        }
+
+        if(mLimeFiltered) {
+            Calendar toLime = Calendar.getInstance();
+            toLime.add(Calendar.HOUR, optimalLime/60);
+            toLime.add(Calendar.MINUTE, optimalLime%60);
+            Calendar toDest = Calendar.getInstance();
+            toDest.add(Calendar.HOUR, optimalLimeDest/60);
+            toDest.add(Calendar.MINUTE, optimalLimeDest%60);
+
+            SimpleDateFormat localDateFormat = new SimpleDateFormat("KK:mm a");
+            String toLimeTime = localDateFormat.format(toLime.getTime());
+            String toDestTime = localDateFormat.format(toDest.getTime());
+
+            TextView closestLime = v.findViewById(R.id.closest_lime);
+            closestLime.setText("Closest scooter:" + toLimeTime);
+            TextView durationLime = v.findViewById(R.id.duration_lime);
+            durationLime.setText("Destination arrival: " + toDestTime);
+            TextView costLime = v.findViewById(R.id.cost_lime);
+            costLime.setText("Estimated Cost: $" + optimalLimeCost);
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
@@ -167,6 +245,8 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
         blackButton.setRideParameters(rideParametersCheapestProduct);
         blackButton.setSession(session);
         blackButton.loadRideInformation();
+
+        //timeEstimateView = (TextView) findViewById(com.uber.sdk.android.rides.R.id.time_estimate); // ToDo: reference individual pieces of layout to fix UI
 
 
         //lyft

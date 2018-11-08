@@ -36,6 +36,8 @@ import java.util.List;
 import edu.osu.ride.async.ResponseAggregatorAsyncTask;
 import edu.osu.ride.model.scooter.Scooter;
 
+import static android.view.View.GONE;
+
 public class RiderActivity extends FragmentActivity implements OnMyLocationButtonClickListener,
         OnClickListener, OnMapReadyCallback {
 
@@ -48,6 +50,7 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
     private static final String LIME_PACKAGE = "com.limebike";
     private static final String TAG = "RiderActivity";
 
+    private Location lastKnownLocation;
     private GoogleMap mMap;
     private View mMapView;
 
@@ -55,11 +58,17 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
     public void setBirds(List<Scooter> birds) {
         mBirds = birds;
     }
+    private double optimalBird = Double.MAX_VALUE;
+    private double optimalBirdDest = Double.MAX_VALUE;
+    private double optimalBirdCost = Double.MAX_VALUE;
 
     private List<Scooter> mLimes;
     public void setLimes(List<Scooter> limes) {
         mLimes = limes;
     }
+    private double optimalLime = Double.MAX_VALUE;
+    private double optimalLimeDest = Double.MAX_VALUE;
+    private double optimalLimeCost = Double.MAX_VALUE;
 
     private LocationManager mLocationManager;
     private LocationListener mLocationListener;
@@ -93,7 +102,7 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
                     mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 50000, 15, mLocationListener);
                     mMap.setMyLocationEnabled(true);
                     mMap.setOnMyLocationButtonClickListener(this);
-                    Location lastKnownLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    lastKnownLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                     initializeMap(lastKnownLocation);
                 }
             }
@@ -146,6 +155,10 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
                             .setIcon(BitmapDescriptorFactory.fromResource(markerIconId));
                 }
             }
+            findViewById(R.id.find_rides).setVisibility(GONE);
+            findViewById(R.id.filters).setVisibility(GONE);
+            findViewById(R.id.destination).setVisibility(GONE);
+            findViewById(R.id.ride_options).setVisibility(View.VISIBLE);
         }
     }
 
@@ -190,6 +203,26 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
     }
 
     public void responseAggregationFinished() {
+        LatLng origin = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
+
+        if (mAllFiltered || mBirdFiltered) {
+            List<LatLng> birdMarkers = getScooterMarkers(mBirds);
+            if (birdMarkers.size() > 0) {
+                for (LatLng bird : birdMarkers) {
+                    getDestinationInfo(origin, bird, "Bird");
+                }
+            }
+        }
+
+        if (mAllFiltered || mLimeFiltered) {
+            List<LatLng> limeMarkers = getScooterMarkers(mLimes);
+            if (limeMarkers.size() > 0) {
+                for (LatLng lime : limeMarkers) {
+                    getDestinationInfo(origin, lime, "Lime");
+                }
+            }
+        }
+
         FragmentManager fm = getSupportFragmentManager();
         ChooseRideDialogFragment dialog = new ChooseRideDialogFragment();
 
@@ -199,6 +232,16 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
         args.putBoolean("lyft", mLyftFiltered);
         args.putBoolean("bird", mBirdFiltered);
         args.putBoolean("lime", mLimeFiltered);
+        if (mAllFiltered || mBirdFiltered) {
+            args.putDouble("birdDuration", optimalBird);
+            args.putDouble("birdDestination", optimalBirdDest);
+            args.putDouble("birdCost", optimalBirdCost);
+        }
+        if (mAllFiltered || mLimeFiltered) {
+            args.putDouble("limeDuration", optimalLime);
+            args.putDouble("limeDestination", optimalLimeDest);
+            args.putDouble("limeCost", optimalLimeCost);
+        }
         dialog.setArguments(args);
         dialog.show(fm, "tag");
     }
@@ -228,7 +271,7 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
             mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 15, mLocationListener);
             mMap.setMyLocationEnabled(true);
             mMap.setOnMyLocationButtonClickListener(this);
-            Location lastKnownLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            lastKnownLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             initializeMap(lastKnownLocation);
         }
     }
@@ -330,7 +373,7 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
                 toggleFilter(LIME);
                 break;
             case R.id.find_rides:
-                if (mAllFiltered) {
+                if (mAllFiltered) { ;
                     new ResponseAggregatorAsyncTask(RiderActivity.this).execute();
                 } else {
                     new ResponseAggregatorAsyncTask(RiderActivity.this,
@@ -398,4 +441,41 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
         return false;
     }
 
+    private void getDestinationInfo(LatLng origin, LatLng scooter, String service) {
+        final double earthRadius = 3961; // mi
+        final double averageWalkingSpeed = 3.1; // mph
+        final double averageScooterSpeed = 15; // mph
+        final LatLng destination = new LatLng(40.0049976,-83.0077963);
+
+        double dLon = (scooter.longitude - origin.longitude)*(Math.PI/180); // Radians
+        double dLat = (scooter.latitude - origin.latitude)*(Math.PI/180); // Radians
+        double a = Math.pow(Math.sin(dLat/2), 2) + Math.cos(origin.latitude)*Math.cos(scooter.latitude)*Math.pow((Math.sin(dLon/2)), 2);
+        double c = 2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        double distanceBird = earthRadius*c; // mi
+        double durationBird = distanceBird/averageWalkingSpeed*60; // min
+
+        System.out.println("bird: " + distanceBird + "mi, " + durationBird + "min");
+
+        dLon = (destination.longitude - scooter.longitude)*(Math.PI/180); // Radians
+        dLat = (destination.latitude - scooter.latitude)*(Math.PI/180); // Radians
+        a = Math.pow(Math.sin(dLat/2), 2) + Math.cos(scooter.latitude)*Math.cos(destination.latitude)*Math.pow((Math.sin(dLon/2)), 2);
+        c = 2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        double distanceDest = earthRadius*c; // mi
+        double durationDest = distanceDest/averageScooterSpeed*60 + durationBird; // min
+        double cost = Math.round((1 + 0.15*durationDest)*100.00)/100.00;
+
+        System.out.println("dest: " + (distanceDest + distanceBird)  + "mi, " + durationDest + "min");
+
+        if ((durationDest < optimalBirdDest) && (service == "Bird")) {
+            optimalBird = Math.round(durationBird);
+            optimalBirdDest = Math.round(durationDest);
+            optimalBirdCost = cost;
+        }
+
+        if ((durationDest < optimalLimeDest) && (service == "Lime")) {
+            optimalLime = Math.round(durationBird);
+            optimalLimeDest = Math.round(durationDest);
+            optimalLimeCost = cost;
+        }
+    }
 }
