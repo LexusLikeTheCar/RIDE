@@ -267,6 +267,7 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
 
         v.findViewById(R.id.lyft_app).setOnClickListener(this);
 
+        dialog.setCanceledOnTouchOutside(false);
         return dialog;
     }
 
@@ -277,14 +278,12 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
                 getDialog().dismiss();
                 removeDim();
                 getRiderActivity().mShowBirds = true;
-                getRiderActivity().showOpenBirdButton();
                 getRiderActivity().updateMap();
                 break;
             case R.id.show_limes:
                 getDialog().dismiss();
                 removeDim();
                 getRiderActivity().mShowLimes = true;
-                getRiderActivity().showOpenLimeButton();
                 getRiderActivity().updateMap();
                 break;
             case R.id.lyft_app:

@@ -27,7 +27,6 @@ public class ResponseAggregatorAsyncTask extends AsyncTask<Void, Void, Void> {
     public ResponseAggregatorAsyncTask(RiderActivity activity) {
         // TODO: Need to make this work with all booleans; will look like call below
         // this(activity, true, true, true, true);
-
         this(activity, true, true, false, false);
     }
 
@@ -68,6 +67,8 @@ public class ResponseAggregatorAsyncTask extends AsyncTask<Void, Void, Void> {
             }).execute();
         }
 
+        checkAllResponses();
+
         return null;
     }
 
@@ -80,7 +81,7 @@ public class ResponseAggregatorAsyncTask extends AsyncTask<Void, Void, Void> {
     private void checkAllResponses() {
         if (mBirdDone && mLimeDone && mUberDone && mLyftDone) {
             mFindRidesProgressBar.setVisibility(View.GONE);
-            mActivity.responseAggregationFinished();
+            mActivity.launchRideOptionsDialog();
         }
     }
 

@@ -37,6 +37,7 @@ import edu.osu.ride.async.ResponseAggregatorAsyncTask;
 import edu.osu.ride.model.scooter.Scooter;
 
 import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 
 public class RiderActivity extends FragmentActivity implements OnMyLocationButtonClickListener,
         OnClickListener, OnMapReadyCallback {
@@ -45,27 +46,31 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
     private static final String LYFT = "Lyft";
     private static final String BIRD = "Bird";
     private static final String LIME = "Lime";
-
     private static final String BIRD_PACKAGE = "co.bird.android";
     private static final String LIME_PACKAGE = "com.limebike";
     private static final String TAG = "RiderActivity";
 
     private Location lastKnownLocation;
+
     private GoogleMap mMap;
     private View mMapView;
 
     private List<Scooter> mBirds;
+
     public void setBirds(List<Scooter> birds) {
         mBirds = birds;
     }
+
     private double optimalBird = Double.MAX_VALUE;
     private double optimalBirdDest = Double.MAX_VALUE;
     private double optimalBirdCost = Double.MAX_VALUE;
 
     private List<Scooter> mLimes;
+
     public void setLimes(List<Scooter> limes) {
         mLimes = limes;
     }
+
     private double optimalLime = Double.MAX_VALUE;
     private double optimalLimeDest = Double.MAX_VALUE;
     private double optimalLimeCost = Double.MAX_VALUE;
@@ -79,9 +84,10 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
     private Button mFilterRidesBirdButton;
     private Button mFilterRidesLimeButton;
     private Button mFindRidesButton;
-    private Button userIcon;
+    private Button mUserIcon;
     private Button mOpenBirdAppButton;
     private Button mOpenLimeAppButton;
+    private Button mRideOptionsButton;
 
     private Boolean mAllFiltered = true;
     private Boolean mUberFiltered = false;
@@ -155,10 +161,19 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
                             .setIcon(BitmapDescriptorFactory.fromResource(markerIconId));
                 }
             }
-            findViewById(R.id.find_rides).setVisibility(GONE);
+            mFindRidesButton.setVisibility(GONE);
             findViewById(R.id.filters).setVisibility(GONE);
             findViewById(R.id.destination).setVisibility(GONE);
-            findViewById(R.id.ride_options).setVisibility(View.VISIBLE);
+            mRideOptionsButton.setVisibility(VISIBLE);
+            Button openScooterAppBtn = mShowBirds ? mOpenBirdAppButton : mOpenLimeAppButton;
+            openScooterAppBtn.setVisibility(VISIBLE);
+        } else {
+            mFindRidesButton.setVisibility(VISIBLE);
+            findViewById(R.id.filters).setVisibility(VISIBLE);
+            findViewById(R.id.destination).setVisibility(VISIBLE);
+            mRideOptionsButton.setVisibility(GONE);
+            mOpenBirdAppButton.setVisibility(GONE);
+            mOpenLimeAppButton.setVisibility(GONE);
         }
     }
 
@@ -190,8 +205,8 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
         mFindRidesButton = findViewById(R.id.find_rides);
         mFindRidesButton.setOnClickListener(this);
 
-        userIcon = findViewById(R.id.user_icon);
-        userIcon.setOnClickListener(this);
+        mUserIcon = findViewById(R.id.user_icon);
+        mUserIcon.setOnClickListener(this);
 
         mOpenBirdAppButton = findViewById(R.id.open_bird);
         mOpenBirdAppButton.setOnClickListener(this);
@@ -199,13 +214,17 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
         mOpenLimeAppButton = findViewById(R.id.open_lime);
         mOpenLimeAppButton.setOnClickListener(this);
 
+        mRideOptionsButton = findViewById(R.id.ride_options);
+        mRideOptionsButton.setOnClickListener(this);
+
         mShowBirds = false;
     }
 
-    public void responseAggregationFinished() {
+    public void launchRideOptionsDialog() {
         LatLng origin = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
 
         if (mAllFiltered || mBirdFiltered) {
+            optimalBirdDest = Double.MAX_VALUE;
             List<LatLng> birdMarkers = getScooterMarkers(mBirds);
             if (birdMarkers.size() > 0) {
                 for (LatLng bird : birdMarkers) {
@@ -215,6 +234,7 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
         }
 
         if (mAllFiltered || mLimeFiltered) {
+            optimalLimeDest = Double.MAX_VALUE;
             List<LatLng> limeMarkers = getScooterMarkers(mLimes);
             if (limeMarkers.size() > 0) {
                 for (LatLng lime : limeMarkers) {
@@ -257,12 +277,18 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
             public void onLocationChanged(Location location) {
                 updateMap();
             }
+
             @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {}
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+            }
+
             @Override
-            public void onProviderEnabled(String provider) {}
+            public void onProviderEnabled(String provider) {
+            }
+
             @Override
-            public void onProviderDisabled(String provider) {}
+            public void onProviderDisabled(String provider) {
+            }
         };
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -373,58 +399,34 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
                 toggleFilter(LIME);
                 break;
             case R.id.find_rides:
-                if (mAllFiltered) {
-                    new ResponseAggregatorAsyncTask(RiderActivity.this).execute();
-                } else {
-                    new ResponseAggregatorAsyncTask(RiderActivity.this,
-                        mBirdFiltered, mLimeFiltered, mUberFiltered, mLyftFiltered).execute();
-
-                    //new ResponseAggregatorAsyncTask(RiderActivity.this).execute(); // TEMPORARY WORKAROUND
-                }
+                launchResponseAggregatorTask();
                 break;
             case R.id.user_icon:
                 startActivity(new Intent(this, SettingsActivity.class));
                 break;
             case R.id.open_bird:
-                deepLinkIntoBird();
+                deepLink(BIRD_PACKAGE);
                 break;
             case R.id.open_lime:
-                deepLinkIntoLime();
+                deepLink(LIME_PACKAGE);
+                break;
+            case R.id.ride_options:
+                mShowLimes = false;
+                mShowBirds = false;
+                updateMap();
+                launchResponseAggregatorTask();
                 break;
         }
     }
 
-    public void showOpenBirdButton() {
-        mFindRidesButton.setVisibility(View.GONE);
-        mOpenBirdAppButton.setVisibility(View.VISIBLE);
-    }
-
-    public void showOpenLimeButton() {
-        mFindRidesButton.setVisibility(View.GONE);
-        mOpenLimeAppButton.setVisibility(View.VISIBLE);
-    }
-
-    private void deepLinkIntoBird() {
-        if (isPackageInstalled(this, BIRD_PACKAGE)) {
-            Intent intent = getPackageManager().getLaunchIntentForPackage(BIRD_PACKAGE);
+    private void deepLink(String packageName) {
+        if (isPackageInstalled(this, packageName)) {
+            Intent intent = getPackageManager().getLaunchIntentForPackage(packageName);
             startActivity(intent);
         } else {
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setData(Uri.parse(
-                    "https://play.google.com/store/apps/details?id=co.bird.android"));
-            intent.setPackage("com.android.vending");
-            startActivity(intent);
-        }
-    }
-
-    private void deepLinkIntoLime() {
-        if (isPackageInstalled(this, LIME_PACKAGE)) {
-            Intent intent = getPackageManager().getLaunchIntentForPackage(LIME_PACKAGE);
-            startActivity(intent);
-        } else {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse(
-                    "https://play.google.com/store/apps/details?id=com.limebike"));
+                    "https://play.google.com/store/apps/details?id=" + packageName));
             intent.setPackage("com.android.vending");
             startActivity(intent);
         }
@@ -445,26 +447,26 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
         final double earthRadius = 3961; // mi
         final double averageWalkingSpeed = 3.1; // mph
         final double averageScooterSpeed = 15; // mph
-        final LatLng destination = new LatLng(40.0049976,-83.0077963);
+        final LatLng destination = new LatLng(40.0049976, -83.0077963);
 
-        double dLon = (scooter.longitude - origin.longitude)*(Math.PI/180); // Radians
-        double dLat = (scooter.latitude - origin.latitude)*(Math.PI/180); // Radians
-        double a = Math.pow(Math.sin(dLat/2), 2) + Math.cos(origin.latitude)*Math.cos(scooter.latitude)*Math.pow((Math.sin(dLon/2)), 2);
-        double c = 2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        double distanceBird = earthRadius*c; // mi
-        double durationBird = distanceBird/averageWalkingSpeed*60; // min
+        double dLon = (scooter.longitude - origin.longitude) * (Math.PI / 180); // Radians
+        double dLat = (scooter.latitude - origin.latitude) * (Math.PI / 180); // Radians
+        double a = Math.pow(Math.sin(dLat / 2), 2) + Math.cos(origin.latitude) * Math.cos(scooter.latitude) * Math.pow((Math.sin(dLon / 2)), 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double distanceBird = earthRadius * c; // mi
+        double durationBird = distanceBird / averageWalkingSpeed * 60; // min
 
         System.out.println("bird: " + distanceBird + "mi, " + durationBird + "min");
 
-        dLon = (destination.longitude - scooter.longitude)*(Math.PI/180); // Radians
-        dLat = (destination.latitude - scooter.latitude)*(Math.PI/180); // Radians
-        a = Math.pow(Math.sin(dLat/2), 2) + Math.cos(scooter.latitude)*Math.cos(destination.latitude)*Math.pow((Math.sin(dLon/2)), 2);
-        c = 2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        double distanceDest = earthRadius*c; // mi
-        double durationDest = distanceDest/averageScooterSpeed*60 + durationBird; // min
-        double cost = Math.round((1 + 0.15*durationDest)*100.00)/100.00;
+        dLon = (destination.longitude - scooter.longitude) * (Math.PI / 180); // Radians
+        dLat = (destination.latitude - scooter.latitude) * (Math.PI / 180); // Radians
+        a = Math.pow(Math.sin(dLat / 2), 2) + Math.cos(scooter.latitude) * Math.cos(destination.latitude) * Math.pow((Math.sin(dLon / 2)), 2);
+        c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double distanceDest = earthRadius * c; // mi
+        double durationDest = distanceDest / averageScooterSpeed * 60 + durationBird; // min
+        double cost = Math.round((1 + 0.15 * durationDest) * 100.00) / 100.00;
 
-        System.out.println("dest: " + (distanceDest + distanceBird)  + "mi, " + durationDest + "min");
+        System.out.println("dest: " + (distanceDest + distanceBird) + "mi, " + durationDest + "min");
 
         if ((durationDest < optimalBirdDest) && (service == "Bird")) {
             optimalBird = Math.round(durationBird);
@@ -476,6 +478,15 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
             optimalLime = Math.round(durationBird);
             optimalLimeDest = Math.round(durationDest);
             optimalLimeCost = cost;
+        }
+    }
+
+    private void launchResponseAggregatorTask() {
+        if (mAllFiltered) {
+            new ResponseAggregatorAsyncTask(RiderActivity.this).execute();
+        } else {
+            new ResponseAggregatorAsyncTask(RiderActivity.this,
+                    mBirdFiltered, mLimeFiltered, mUberFiltered, mLyftFiltered).execute();
         }
     }
 }
