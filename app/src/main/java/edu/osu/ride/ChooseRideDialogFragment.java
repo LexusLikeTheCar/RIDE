@@ -49,6 +49,14 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
     private int optimalLimeDest;
     private String optimalLimeCost;
 
+    private int optimalUber;
+    private int optimalUberDest;
+    private String optimalUberCost;
+
+    private int optimalLyft;
+    private int optimalLyftDest;
+    private String optimalLyftCost;
+
     private Activity mActivity;
     private LinearLayout mOptimalUber;
     private LinearLayout mOptimalLyft;
@@ -91,6 +99,18 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
             optimalLime = (int)(getArguments().getDouble("limeDuration"));
             optimalLimeDest = (int)(getArguments().getDouble("limeDestination"));
             optimalLimeCost = Double.toString(getArguments().getDouble("limeCost"));
+        }
+
+        if (mUberFiltered) {
+            optimalUber = getArguments().getInt("uberDuration");
+            optimalUberDest = getArguments().getInt("uberDestination");
+            optimalUberCost = Double.toString(getArguments().getDouble("uberCost"));
+        }
+
+        if (mLyftFiltered) {
+            optimalLyft = getArguments().getInt("lyftDuration");
+            optimalLyftDest = getArguments().getInt("lyftDestination");
+            optimalLyftCost = Double.toString(getArguments().getDouble("lyftCost"));
         }
 
     }
@@ -160,6 +180,46 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
             costLime.setText("Estimated Cost: $" + optimalLimeCost);
         }
 
+        if(mUberFiltered) {
+            Calendar toUber = Calendar.getInstance();
+            toUber.add(Calendar.HOUR, optimalUber/3600);
+            toUber.add(Calendar.MINUTE, (optimalUber%3600)/60);
+            Calendar toDest = Calendar.getInstance();
+            toDest.add(Calendar.HOUR, optimalUberDest/3600);
+            toDest.add(Calendar.MINUTE, (optimalUberDest%3600)/60);
+
+            SimpleDateFormat localDateFormat = new SimpleDateFormat("KK:mm a");
+            String toUberTime = localDateFormat.format(toUber.getTime());
+            String toDestTime = localDateFormat.format(toDest.getTime());
+
+            TextView closestUber = v.findViewById(R.id.closest_uber);
+            closestUber.setText("Driver arrival:" + toUberTime);
+            TextView durationUber = v.findViewById(R.id.duration_uber);
+            durationUber.setText("Destination arrival: " + toDestTime);
+            TextView costUber = v.findViewById(R.id.cost_uber);
+            costUber.setText("Estimated Cost: $" + optimalUberCost);
+        }
+
+        if(mLyftFiltered) {
+            Calendar toLyft = Calendar.getInstance();
+            toLyft.add(Calendar.HOUR, optimalLyft/3600);
+            toLyft.add(Calendar.MINUTE, (optimalLyft%3600)/60);
+            Calendar toDest = Calendar.getInstance();
+            toDest.add(Calendar.HOUR, optimalLyftDest/3600);
+            toDest.add(Calendar.MINUTE, (optimalLyftDest%3600)/60);
+
+            SimpleDateFormat localDateFormat = new SimpleDateFormat("KK:mm a");
+            String toLyftTime = localDateFormat.format(toLyft.getTime());
+            String toDestTime = localDateFormat.format(toDest.getTime());
+
+            TextView closestLyft = v.findViewById(R.id.closest_lyft);
+            closestLyft.setText("Driver arrival:" + toLyftTime);
+            TextView durationLyft = v.findViewById(R.id.duration_lyft);
+            durationLyft.setText("Destination arrival: " + toDestTime);
+            TextView costLyft = v.findViewById(R.id.cost_lyft);
+            costLyft.setText("Estimated Cost: $" + optimalLyftCost);
+        }
+
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
         builder.setView(v);
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -204,10 +264,10 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
                 .build();
 
         // This button demonstrates deep-linking to the Uber app (default button behavior).
-        RideRequestButton blackButton = (RideRequestButton) v.findViewById(R.id.uber_app);
+        /*RideRequestButton blackButton = (RideRequestButton) v.findViewById(R.id.uber_app);
         blackButton.setRideParameters(rideParametersCheapestProduct);
         blackButton.setSession(session);
-        blackButton.loadRideInformation();
+        blackButton.loadRideInformation();*/
 
         //timeEstimateView = (TextView) findViewById(com.uber.sdk.android.rides.R.id.time_estimate); // ToDo: reference individual pieces of layout to fix UI
 
@@ -217,7 +277,7 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
                 .setClientId("y5_U06Wt1Uub")
                 .setClientToken("/o+SE7Zb4/BVc63U5T6UEVHbB5xXTlU6Wyom69l2qI7aYP8z8/yCtDTQwkpuc8SbNJzpHpsbfa/Lf78KGDB5QEMTzonS8Ci1UYgnPGTuRJJQFquulZc9kqA=")
                 .build();
-        LyftButton lyftButton = (LyftButton) v.findViewById(R.id.lyft_app);
+        /*LyftButton lyftButton = (LyftButton) v.findViewById(R.id.lyft_app);
         lyftButton.setApiConfig(apiConfig);
 
         RideParams.Builder rideParamsBuilder = new RideParams.Builder()
@@ -228,7 +288,7 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
         lyftButton.setRideParams(rideParamsBuilder.build());
         lyftButton.load();
 
-        v.findViewById(R.id.lyft_app).setOnClickListener(this);
+        v.findViewById(R.id.lyft_app).setOnClickListener(this);*/
 
         dialog.setCanceledOnTouchOutside(false);
         return dialog;
@@ -249,11 +309,11 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
                 getRiderActivity().mShowLimes = true;
                 getRiderActivity().updateMap();
                 break;
-            case R.id.lyft_app:
-                getDialog().dismiss();
-                removeDim();
-                deepLinkIntoLyft();
-                break;
+//            case R.id.lyft_app:
+//                getDialog().dismiss();
+//                removeDim();
+//                deepLinkIntoLyft();
+//                break;
         }
     }
 
