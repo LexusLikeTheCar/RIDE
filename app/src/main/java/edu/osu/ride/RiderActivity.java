@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.Toast;
@@ -114,7 +115,7 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
     private Button mUserIcon;
     private Button mOpenBirdAppButton;
     private Button mOpenLimeAppButton;
-    private Button mRideOptionsButton;
+    private LinearLayout mRideOptionsButton;
 
     private Boolean mAllFiltered = true;
     private Boolean mUberFiltered = false;

@@ -11,8 +11,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -222,7 +224,7 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
 
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
         builder.setView(v);
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 removeDim();
                 getRiderActivity().updateMap();
@@ -231,6 +233,19 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
 
         // Create the AlertDialog object and return it
         final AlertDialog dialog = builder.create();
+
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface arg0) {
+                final Button cancel = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+                cancel.setTextColor(getResources().getColor(R.color.colorPrimary));
+                cancel.setTextSize(20);
+                LinearLayout.LayoutParams cancelParams = (LinearLayout.LayoutParams) cancel.getLayoutParams();
+                cancelParams.width = ViewGroup.LayoutParams.MATCH_PARENT;;
+                cancel.setLayoutParams(cancelParams);
+            }
+        });
+
         dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
 
         mShowBird = v.findViewById(R.id.show_birds);
