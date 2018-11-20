@@ -37,6 +37,9 @@ import static com.uber.sdk.android.core.utils.Preconditions.checkState;
 
 public class ChooseRideDialogFragment extends DialogFragment implements View.OnClickListener {
 
+    private static final String UBER_PACKAGE = "com.ubercab";
+    private static final String LYFT_PACKAGE = "me.lyft.android";
+
     private Boolean mAllFiltered;
     private Boolean mUberFiltered;
     private Boolean mLyftFiltered;
@@ -70,9 +73,11 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
 
     private com.uber.sdk.rides.client.SessionConfiguration configuration;
     private static final String TAG = "Rider Dialog Fragment";
-    private static final String LYFT_PACKAGE = "me.lyft.android";
+
     private Button mShowLime;
     private Button mShowBird;
+    private Button mUberApp;
+    private Button mLyftApp;
 
 
     @Override
@@ -254,6 +259,12 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
         mShowLime = v.findViewById(R.id.show_limes);
         mShowLime.setOnClickListener(this);
 
+        mUberApp = v.findViewById(R.id.uber_app);
+        mUberApp.setOnClickListener(this);
+
+        mLyftApp = v.findViewById(R.id.lyft_app);
+        mLyftApp.setOnClickListener(this);
+
         Double dropoffLat = getRiderActivity().getDestination().getLatLng().latitude;
         Double dropoffLong = getRiderActivity().getDestination().getLatLng().longitude;
 
@@ -324,11 +335,16 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
                 getRiderActivity().mShowLimes = true;
                 getRiderActivity().updateMap();
                 break;
-//            case R.id.lyft_app:
-//                getDialog().dismiss();
-//                removeDim();
-//                deepLinkIntoLyft();
-//                break;
+            case R.id.uber_app:
+                getDialog().dismiss();
+                removeDim();
+                getRiderActivity().deepLink(UBER_PACKAGE);
+                break;
+            case R.id.lyft_app:
+                getDialog().dismiss();
+                removeDim();
+                getRiderActivity().deepLink(LYFT_PACKAGE);
+                break;
         }
     }
 

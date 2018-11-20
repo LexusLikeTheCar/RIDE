@@ -504,7 +504,7 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
         }
     }
 
-    private void deepLink(String packageName) {
+    public void deepLink(String packageName) {
         if (isPackageInstalled(this, packageName)) {
             Intent intent = getPackageManager().getLaunchIntentForPackage(packageName);
             startActivity(intent);
