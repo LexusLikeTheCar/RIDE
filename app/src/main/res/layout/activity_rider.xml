@@ -137,6 +137,7 @@
                 android:id="@+id/ride_options"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="7dp"
                 android:orientation="horizontal" >
 
                 <TextView
@@ -158,18 +159,6 @@
                     android:text="Ride Options"/>
 
             </LinearLayout>
-
-            <!--<Button
-                android:id="@+id/ride_options"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_marginHorizontal="7dp"
-                android:text="← Ride Options"
-                android:background="@drawable/ride_options"
-                android:textColor="@color/textPrimary"
-                style="?android:attr/borderlessButtonStyle"
-                android:visibility="gone"/>-->
 
         </RelativeLayout>
 

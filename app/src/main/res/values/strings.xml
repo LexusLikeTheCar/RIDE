@@ -5,7 +5,9 @@
     <string name="email">email</string>
     <string name="password">password</string>
     <string name="login_button">Login</string>
+    <string name="logout_button">Logout</string>
     <string name="dont_have_account_text">Don\'t have an account?</string>
+    <string name="update_account_text">To update an account property, change value of respective property in form below and click \"Update Account.\"</string>
     <string name="signup_button">Sign Up</string>
     <string name="username">username</string>
     <string name="confirm_password">confirm password</string>
