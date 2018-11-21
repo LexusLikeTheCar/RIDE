@@ -20,6 +20,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -96,28 +97,30 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
             mLimeFiltered = true;
         }
 
+        DecimalFormat df = new DecimalFormat("#0.00");
+
         if (mBirdFiltered) {
             optimalBird = (int)(getArguments().getDouble("birdDuration"));
             optimalBirdDest = (int)(getArguments().getDouble("birdDestination"));
-            optimalBirdCost = Double.toString(getArguments().getDouble("birdCost"));
+            optimalBirdCost = df.format(getArguments().getDouble("birdCost"));
         }
 
         if (mLimeFiltered) {
             optimalLime = (int)(getArguments().getDouble("limeDuration"));
             optimalLimeDest = (int)(getArguments().getDouble("limeDestination"));
-            optimalLimeCost = Double.toString(getArguments().getDouble("limeCost"));
+            optimalLimeCost = df.format(getArguments().getDouble("limeCost"));
         }
 
         if (mUberFiltered) {
             optimalUber = getArguments().getInt("uberDuration");
             optimalUberDest = getArguments().getInt("uberDestination");
-            optimalUberCost = Double.toString(getArguments().getDouble("uberCost"));
+            optimalUberCost = df.format(getArguments().getDouble("uberCost"));
         }
 
         if (mLyftFiltered) {
             optimalLyft = getArguments().getInt("lyftDuration");
             optimalLyftDest = getArguments().getInt("lyftDestination");
-            optimalLyftCost = Double.toString(getArguments().getDouble("lyftCost"));
+            optimalLyftCost = df.format(getArguments().getDouble("lyftCost"));
         }
 
     }

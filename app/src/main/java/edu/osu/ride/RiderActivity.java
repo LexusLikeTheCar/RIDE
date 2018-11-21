@@ -264,6 +264,7 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
 
         mRideOptionsButton = findViewById(R.id.ride_options);
         mRideOptionsButton.setOnClickListener(this);
+        mRideOptionsButton.setVisibility(GONE);
 
         mShowBirds = false;
     }
