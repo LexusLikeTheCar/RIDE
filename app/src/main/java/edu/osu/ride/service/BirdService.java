@@ -1,19 +1,10 @@
 package edu.osu.ride.service;
 
 import android.location.Location;
-import android.util.Log;
 
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpHeaders;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestFactory;
-import com.google.api.client.http.HttpRequestInitializer;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.http.json.JsonHttpContent;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.JsonObjectParser;
-import com.google.api.client.json.jackson2.JacksonFactory;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -26,17 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class BirdService {
-
-    private static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
-    private static final JsonFactory JSON_FACTORY = new JacksonFactory();
-    private static final HttpRequestFactory requestFactory =
-            HTTP_TRANSPORT.createRequestFactory(new HttpRequestInitializer() {
-                @Override
-                public void initialize(HttpRequest request) {
-                    request.setParser(new JsonObjectParser(JSON_FACTORY));
-                }
-            });
+public class BirdService extends AbstractService {
 
     public static String generateToken() throws Exception {
         HttpHeaders headers = new HttpHeaders();

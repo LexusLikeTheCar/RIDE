@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.osu.ride.async.ResponseAggregatorAsyncTask;
+import edu.osu.ride.model.driver.Driver;
 import edu.osu.ride.model.scooter.Scooter;
 
 import static android.view.View.GONE;
@@ -73,6 +74,16 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
     private List<Scooter> mLimes;
     public void setLimes(List<Scooter> limes) {
         mLimes = limes;
+    }
+
+    private List<Driver> mUbers;
+    public void setUbers(List<Driver> ubers) {
+        mUbers = ubers;
+    }
+
+    private List<Driver> mLyfts;
+    public void setLyfts(List<Driver> lyfts) {
+        mLyfts = lyfts;
     }
 
     private double optimalBird = Double.MAX_VALUE;
@@ -274,6 +285,20 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
                     getDestinationInfo(origin, lime, LIME);
                 }
             }
+        }
+
+        if (mAllFiltered || mUberFiltered) {
+            Log.i(TAG, mUbers.get(0).type);
+            Log.i(TAG, String.valueOf(mUbers.get(0).estimatedCost));
+            Log.i(TAG, String.valueOf(mUbers.get(0).driverArrivalInSecs));
+            Log.i(TAG, String.valueOf(mUbers.get(0).destinationArrivalInSecs));
+        }
+
+        if (mAllFiltered || mLyftFiltered) {
+            Log.i(TAG, mLyfts.get(0).type);
+            Log.i(TAG, String.valueOf(mLyfts.get(0).estimatedCost));
+            Log.i(TAG, String.valueOf(mLyfts.get(0).driverArrivalInSecs));
+            Log.i(TAG, String.valueOf(mLyfts.get(0).destinationArrivalInSecs));
         }
 
         FragmentManager fm = getSupportFragmentManager();
