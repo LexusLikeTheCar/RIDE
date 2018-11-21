@@ -23,6 +23,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     private EditText mUsernameField;
     private Button mUpdateButton;
     private Button mDeleteButton;
+    private Button mLogoutButton;
 
     private FirebaseAuth mAuth;
 
@@ -40,6 +41,9 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
         mDeleteButton = findViewById(R.id.delete_Button);
         mDeleteButton.setOnClickListener(this);
+
+        mLogoutButton = findViewById(R.id.logout_button);
+        mLogoutButton.setOnClickListener(this);
 
         mAuth = FirebaseAuth.getInstance();
     }
@@ -97,6 +101,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                                         });
                                 FirebaseDatabase.getInstance().getReference("Users")
                                         .child(mAuth.getCurrentUser().getUid()).removeValue();
+                                mAuth.signOut();
                                 startActivity(new Intent(SettingsActivity.this, LoginActivity.class));
                                 break;
 
@@ -110,15 +115,15 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                 AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
                 builder.setMessage("Are you sure?").setPositiveButton("Yes", dialogClickListener)
                         .setNegativeButton("Cancel", dialogClickListener).show();
-
-
-
                 break;
-            //TODO: check for delete profile glitch
             case R.id.updateSettingsButton:
                 editSettings();
                 Toast.makeText(SettingsActivity.this, "Profile updated", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(this, RiderActivity.class));
+                break;
+            case R.id.logout_button:
+                mAuth.signOut();
+                startActivity(new Intent(this, LoginActivity.class));
                 break;
         }
     }
