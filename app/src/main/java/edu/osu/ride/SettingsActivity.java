@@ -27,7 +27,7 @@ public class SettingsActivity extends FragmentActivity implements  View.OnClickL
     private EditText mUsernameField;
     private Button mUpdateButton;
     private Button mDeleteButton;
-
+    private Button mLogoutButton;
 
     private FirebaseAuth mAuth;
 
@@ -45,6 +45,9 @@ public class SettingsActivity extends FragmentActivity implements  View.OnClickL
 
         mDeleteButton = findViewById(R.id.delete_Button);
         mDeleteButton.setOnClickListener(this);
+
+        mLogoutButton = findViewById(R.id.logout_button);
+        mLogoutButton.setOnClickListener(this);
 
         mAuth = FirebaseAuth.getInstance();
     }
@@ -83,16 +86,48 @@ public class SettingsActivity extends FragmentActivity implements  View.OnClickL
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.delete_Button:
-                FragmentManager fm = getSupportFragmentManager();
-                DeleteUserFragment dialog = new DeleteUserFragment();
-                dialog.show(fm, "tag");
+                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which){
+                            case DialogInterface.BUTTON_POSITIVE:
+                                mAuth.getCurrentUser().delete()
+                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if (task.isSuccessful()) {
+                                                    Toast.makeText(SettingsActivity.this, "Profile deleted", Toast.LENGTH_SHORT).show();
 
+                                                } else {
+                                                    Toast.makeText(SettingsActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                                }
+                                            }
+                                        });
+                                FirebaseDatabase.getInstance().getReference("Users")
+                                        .child(mAuth.getCurrentUser().getUid()).removeValue();
+                                mAuth.signOut();
+                                startActivity(new Intent(SettingsActivity.this, LoginActivity.class));
+                                break;
+
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                dialog.dismiss();
+                                break;
+                        }
+                    }
+                };
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
+                builder.setMessage("Are you sure?").setPositiveButton("Yes", dialogClickListener)
+                        .setNegativeButton("Cancel", dialogClickListener).show();
                 break;
-            //TODO: check for delete profile glitch
             case R.id.updateSettingsButton:
                 editSettings();
                 Toast.makeText(SettingsActivity.this, "Profile updated", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(this, RiderActivity.class));
+                break;
+            case R.id.logout_button:
+                mAuth.signOut();
+                startActivity(new Intent(this, LoginActivity.class));
                 break;
         }
     }

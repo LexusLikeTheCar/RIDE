@@ -127,14 +127,40 @@
 
         </LinearLayout>
 
-        <Button
-            android:id="@+id/ride_options"
-            android:layout_width="wrap_content"
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="Ride Options"
-            android:background="@drawable/filtered_off"
-            android:textColor="@color/textPrimary"
-            android:visibility="gone"/>
+            android:background="@color/colorPrimary" >
+
+            <LinearLayout
+                android:id="@+id/ride_options"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="7dp"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginTop="-18dp"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="50dp"
+                    android:text="←"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginTop="-18dp"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="20dp"
+                    android:text="Ride Options"/>
+
+            </LinearLayout>
+
+        </RelativeLayout>
 
     </LinearLayout>
 
@@ -144,7 +170,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerInParent="true"
-        android:text="Open Lime App"
+        android:layout_marginVertical="22dp"
+        android:text="  Open Lime App  "
         android:background="@drawable/filtered_off"
         android:textColor="@color/textPrimary"
         android:visibility="gone" />
@@ -155,7 +182,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerInParent="true"
-        android:text="Open Bird App"
+        android:layout_marginVertical="22dp"
+        android:text="  Open Bird App  "
         android:background="@drawable/filtered_off"
         android:textColor="@color/textPrimary"
         android:visibility="gone" />
@@ -166,6 +194,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerInParent="true"
+        android:layout_marginVertical="22dp"
         android:text="Find Rides"
         android:background="@drawable/filtered_off"
         android:textColor="@color/textPrimary" />

@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.Toast;
@@ -35,11 +36,18 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import edu.osu.ride.async.ResponseAggregatorAsyncTask;
+import edu.osu.ride.model.User;
+import edu.osu.ride.model.driver.Driver;
 import edu.osu.ride.model.scooter.Scooter;
 
 import static android.view.View.GONE;
@@ -55,6 +63,16 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
     private static final String BIRD_PACKAGE = "co.bird.android";
     private static final String LIME_PACKAGE = "com.limebike";
     private static final String TAG = "RiderActivity";
+
+    private FirebaseAuth mAuth;
+
+    private User mUser;
+    public User getUser() {
+        return mUser;
+    }
+    public void setUser(User user) {
+        mUser = user;
+    }
 
     private Location mLastKnownLocation;
     public Location getLastKnownLocation() {
@@ -75,15 +93,28 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
         mLimes = limes;
     }
 
-    private double optimalBird = Double.MAX_VALUE;
-    private double optimalBirdDest = Double.MAX_VALUE;
-    private double optimalBirdCost = Double.MAX_VALUE;
+    private List<Driver> mUbers;
+    public void setUbers(List<Driver> ubers) {
+        mUbers = ubers;
+    }
 
-    private double optimalLime = Double.MAX_VALUE;
-    private double optimalLimeDest = Double.MAX_VALUE;
-    private double optimalLimeCost = Double.MAX_VALUE;
+    private List<Driver> mLyfts;
+    public void setLyfts(List<Driver> lyfts) {
+        mLyfts = lyfts;
+    }
 
-    private Place mDestination;
+    public double optimalBird = Double.MAX_VALUE;
+    public double optimalBirdDest = Double.MAX_VALUE;
+    public double optimalBirdCost = Double.MAX_VALUE;
+
+    public double optimalLime = Double.MAX_VALUE;
+    public double optimalLimeDest = Double.MAX_VALUE;
+    public double optimalLimeCost = Double.MAX_VALUE;
+
+    public Driver optimalUber;
+    public Driver optimalLyft;
+
+    public Place mDestination;
     public Place getDestination() {
         return mDestination;
     }
@@ -100,7 +131,7 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
     private Button mUserIcon;
     private Button mOpenBirdAppButton;
     private Button mOpenLimeAppButton;
-    private Button mRideOptionsButton;
+    private LinearLayout mRideOptionsButton;
 
     private Boolean mAllFiltered = true;
     private Boolean mUberFiltered = false;
@@ -249,8 +280,25 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
 
         mRideOptionsButton = findViewById(R.id.ride_options);
         mRideOptionsButton.setOnClickListener(this);
+        mRideOptionsButton.setVisibility(GONE);
 
         mShowBirds = false;
+
+        mAuth = FirebaseAuth.getInstance();
+
+        FirebaseDatabase.getInstance().getReference("Users")
+                .child(mAuth.getCurrentUser().getUid())
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        mUser = dataSnapshot.getValue(User.class);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        System.out.println("The read failed: " + databaseError.getCode());
+                    }
+                });
     }
 
     public void launchRideOptionsDialog() {
@@ -258,22 +306,40 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
 
         if (mAllFiltered || mBirdFiltered) {
             optimalBirdDest = Double.MAX_VALUE;
+            final LatLng destination = new LatLng(mDestination.getLatLng().latitude, mDestination.getLatLng().longitude);
             List<LatLng> birdMarkers = getScooterMarkers(mBirds);
             if (birdMarkers.size() > 0) {
                 for (LatLng bird : birdMarkers) {
-                    getDestinationInfo(origin, bird, BIRD);
+                    getScooterDestinationInfo(origin, bird, destination, BIRD);
                 }
             }
         }
 
         if (mAllFiltered || mLimeFiltered) {
             optimalLimeDest = Double.MAX_VALUE;
+            final LatLng destination = new LatLng(mDestination.getLatLng().latitude, mDestination.getLatLng().longitude);
             List<LatLng> limeMarkers = getScooterMarkers(mLimes);
             if (limeMarkers.size() > 0) {
                 for (LatLng lime : limeMarkers) {
-                    getDestinationInfo(origin, lime, LIME);
+                    getScooterDestinationInfo(origin, lime, destination, LIME);
                 }
             }
+        }
+
+        if (mAllFiltered || mUberFiltered) {
+            Log.i(TAG, mUbers.get(0).type);
+            Log.i(TAG, String.valueOf(mUbers.get(0).estimatedCost));
+            Log.i(TAG, String.valueOf(mUbers.get(0).driverArrivalInSecs));
+            Log.i(TAG, String.valueOf(mUbers.get(0).destinationArrivalInSecs));
+            getCarDestinationInfo(mUbers, UBER);
+        }
+
+        if (mAllFiltered || mLyftFiltered) {
+            Log.i(TAG, mLyfts.get(0).type);
+            Log.i(TAG, String.valueOf(mLyfts.get(0).estimatedCost));
+            Log.i(TAG, String.valueOf(mLyfts.get(0).driverArrivalInSecs));
+            Log.i(TAG, String.valueOf(mLyfts.get(0).destinationArrivalInSecs));
+            getCarDestinationInfo(mLyfts, LYFT);
         }
 
         FragmentManager fm = getSupportFragmentManager();
@@ -294,6 +360,16 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
             args.putDouble("limeDuration", optimalLime);
             args.putDouble("limeDestination", optimalLimeDest);
             args.putDouble("limeCost", optimalLimeCost);
+        }
+        if (mAllFiltered || mUberFiltered) {
+            args.putInt("uberDuration", optimalUber.driverArrivalInSecs);
+            args.putInt("uberDestination", optimalUber.destinationArrivalInSecs);
+            args.putDouble("uberCost", optimalUber.estimatedCost);
+        }
+        if (mAllFiltered || mLyftFiltered) {
+            args.putInt("lyftDuration", optimalLyft.driverArrivalInSecs);
+            args.putInt("lyftDestination", optimalLyft.destinationArrivalInSecs);
+            args.putDouble("lyftCost", optimalLyft.estimatedCost);
         }
         dialog.setArguments(args);
         dialog.show(fm, "tag");
@@ -463,7 +539,7 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
         }
     }
 
-    private void deepLink(String packageName) {
+    public void deepLink(String packageName) {
         if (isPackageInstalled(this, packageName)) {
             Intent intent = getPackageManager().getLaunchIntentForPackage(packageName);
             startActivity(intent);
@@ -487,11 +563,28 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
         return false;
     }
 
-    private void getDestinationInfo(LatLng origin, LatLng scooter, String service) {
+    public void getCarDestinationInfo(List<Driver> cars, String service) {
+        double min = Double.MAX_VALUE;
+        int i = 0;
+        while (i < cars.size()) {
+            double current = cars.get(i).estimatedCost;
+            if (current < min) {
+                if (service == "Uber") {
+                    min = current;
+                    optimalUber = cars.get(i);
+                } else { // Lyft
+                    min = current;
+                    optimalLyft = cars.get(i);
+                }
+            }
+            i++;
+        }
+    }
+
+    public void getScooterDestinationInfo(LatLng origin, LatLng scooter, LatLng destination, String service) {
         final double earthRadius = 3961; // mi
         final double averageWalkingSpeed = 3.1; // mph
         final double averageScooterSpeed = 15; // mph
-        final LatLng destination = new LatLng(mDestination.getLatLng().latitude, mDestination.getLatLng().longitude);
 
         double dLon = (scooter.longitude - origin.longitude) * (Math.PI / 180); // Radians
         double dLat = (scooter.latitude - origin.latitude) * (Math.PI / 180); // Radians
@@ -500,8 +593,6 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
         double distanceBird = earthRadius * c; // mi
         double durationBird = distanceBird / averageWalkingSpeed * 60; // min
 
-        System.out.println("bird: " + distanceBird + "mi, " + durationBird + "min");
-
         dLon = (destination.longitude - scooter.longitude) * (Math.PI / 180); // Radians
         dLat = (destination.latitude - scooter.latitude) * (Math.PI / 180); // Radians
         a = Math.pow(Math.sin(dLat / 2), 2) + Math.cos(scooter.latitude) * Math.cos(destination.latitude) * Math.pow((Math.sin(dLon / 2)), 2);
@@ -509,8 +600,6 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
         double distanceDest = earthRadius * c; // mi
         double durationDest = distanceDest / averageScooterSpeed * 60 + durationBird; // min
         double cost = Math.round((1 + 0.15 * durationDest) * 100.00) / 100.00;
-
-        System.out.println("dest: " + (distanceDest + distanceBird) + "mi, " + durationDest + "min");
 
         if ((durationDest < optimalBirdDest) && (service.equals(BIRD))) {
             optimalBird = Math.round(durationBird);
