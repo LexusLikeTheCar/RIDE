@@ -7,6 +7,7 @@ import android.widget.ProgressBar;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.Date;
 import java.util.List;
 
 import edu.osu.ride.R;
@@ -15,6 +16,9 @@ import edu.osu.ride.async.BirdAsyncTask.BirdResponse;
 import edu.osu.ride.async.LimeAsyncTask.LimeResponse;
 import edu.osu.ride.async.LyftAsyncTask.LyftResponse;
 import edu.osu.ride.async.UberAsyncTask.UberResponse;
+import edu.osu.ride.async.params.BirdTaskParams;
+import edu.osu.ride.async.params.LyftTaskParams;
+import edu.osu.ride.model.User;
 import edu.osu.ride.model.driver.Driver;
 import edu.osu.ride.model.scooter.Scooter;
 
@@ -53,7 +57,15 @@ public class ResponseAggregatorAsyncTask extends AsyncTask<Void, Void, Void> {
         LatLng originLatLng = new LatLng(origin.getLatitude(), origin.getLongitude());
         LatLng destinationLatLng = mActivity.getDestination().getLatLng();
 
+        User user = mActivity.getUser();
+
         if (!mBirdDone) {
+            boolean generateToken = user.birdToken == null ||
+                    user.birdTokenExpirationTimestamp == null ||
+                    new Date(Long.valueOf(user.birdTokenExpirationTimestamp)).before(new Date());
+
+            BirdTaskParams params = new BirdTaskParams(user.birdToken, origin, generateToken);
+
             new BirdAsyncTask(new BirdResponse() {
                 @Override
                 public void processFinish(List<Scooter> birds) {
@@ -61,7 +73,7 @@ public class ResponseAggregatorAsyncTask extends AsyncTask<Void, Void, Void> {
                     mActivity.setBirds(birds);
                     checkAllResponses();
                 }
-            }).execute(origin);
+            }).execute(params);
         }
 
         if (!mLimeDone) {
@@ -87,6 +99,12 @@ public class ResponseAggregatorAsyncTask extends AsyncTask<Void, Void, Void> {
         }
 
         if (!mLyftDone) {
+            boolean generateToken = user.lyftToken == null ||
+                    user.lyftTokenExpirationTimestamp == null ||
+                    new Date(Long.valueOf(user.lyftTokenExpirationTimestamp)).before(new Date());
+
+            LyftTaskParams params = new LyftTaskParams(user.lyftToken, originLatLng, destinationLatLng, generateToken);
+
             new LyftAsyncTask(new LyftResponse() {
                 @Override
                 public void processFinish(List<Driver> lyfts) {
@@ -94,7 +112,7 @@ public class ResponseAggregatorAsyncTask extends AsyncTask<Void, Void, Void> {
                     mActivity.setLyfts(lyfts);
                     checkAllResponses();
                 }
-            }).execute(originLatLng, destinationLatLng);
+            }).execute(params);
         }
 
         checkAllResponses();

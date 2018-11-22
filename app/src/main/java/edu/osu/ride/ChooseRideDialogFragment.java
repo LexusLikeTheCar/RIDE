@@ -139,11 +139,18 @@ public class ChooseRideDialogFragment extends DialogFragment implements View.OnC
             String toDestTime = localDateFormat.format(toDest.getTime());
 
             TextView closestBird = v.findViewById(R.id.closest_bird);
-            closestBird.setText("Closest scooter:" + toBirdTime);
             TextView durationBird = v.findViewById(R.id.duration_bird);
-            durationBird.setText("Destination arrival: " + toDestTime);
             TextView costBird = v.findViewById(R.id.cost_bird);
-            costBird.setText("Estimated Cost: $" + optimalBirdCost);
+
+            if (getArguments().getDouble("birdCost") == Double.MAX_VALUE) {
+                closestBird.setText("NO BIRDS AVAILABLE");
+                durationBird.setText("");
+                costBird.setText("");
+            } else {
+                closestBird.setText("Closest scooter:" + toBirdTime);
+                durationBird.setText("Destination arrival: " + toDestTime);
+                costBird.setText("Estimated Cost: $" + optimalBirdCost);
+            }
         }
 
         if(mLimeFiltered) {
