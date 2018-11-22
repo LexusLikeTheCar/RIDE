@@ -87,18 +87,18 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
         mLyfts = lyfts;
     }
 
-    private double optimalBird = Double.MAX_VALUE;
-    private double optimalBirdDest = Double.MAX_VALUE;
-    private double optimalBirdCost = Double.MAX_VALUE;
+    public double optimalBird = Double.MAX_VALUE;
+    public double optimalBirdDest = Double.MAX_VALUE;
+    public double optimalBirdCost = Double.MAX_VALUE;
 
-    private double optimalLime = Double.MAX_VALUE;
-    private double optimalLimeDest = Double.MAX_VALUE;
-    private double optimalLimeCost = Double.MAX_VALUE;
+    public double optimalLime = Double.MAX_VALUE;
+    public double optimalLimeDest = Double.MAX_VALUE;
+    public double optimalLimeCost = Double.MAX_VALUE;
 
-    private Driver optimalUber;
-    private Driver optimalLyft;
+    public Driver optimalUber;
+    public Driver optimalLyft;
 
-    private Place mDestination;
+    public Place mDestination;
     public Place getDestination() {
         return mDestination;
     }
@@ -274,20 +274,22 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
 
         if (mAllFiltered || mBirdFiltered) {
             optimalBirdDest = Double.MAX_VALUE;
+            final LatLng destination = new LatLng(mDestination.getLatLng().latitude, mDestination.getLatLng().longitude);
             List<LatLng> birdMarkers = getScooterMarkers(mBirds);
             if (birdMarkers.size() > 0) {
                 for (LatLng bird : birdMarkers) {
-                    getScooterDestinationInfo(origin, bird, BIRD);
+                    getScooterDestinationInfo(origin, bird, destination, BIRD);
                 }
             }
         }
 
         if (mAllFiltered || mLimeFiltered) {
             optimalLimeDest = Double.MAX_VALUE;
+            final LatLng destination = new LatLng(mDestination.getLatLng().latitude, mDestination.getLatLng().longitude);
             List<LatLng> limeMarkers = getScooterMarkers(mLimes);
             if (limeMarkers.size() > 0) {
                 for (LatLng lime : limeMarkers) {
-                    getScooterDestinationInfo(origin, lime, LIME);
+                    getScooterDestinationInfo(origin, lime, destination, LIME);
                 }
             }
         }
@@ -529,12 +531,11 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
         return false;
     }
 
-    private void getCarDestinationInfo(List<Driver> cars, String service) {
+    public void getCarDestinationInfo(List<Driver> cars, String service) {
         double min = Double.MAX_VALUE;
         int i = 0;
         while (i < cars.size()) {
             double current = cars.get(i).estimatedCost;
-            System.out.println("Cost: " + service + ", " + current + ", " + cars.get(i).destinationArrivalInSecs);
             if (current < min) {
                 if (service == "Uber") {
                     min = current;
@@ -548,11 +549,10 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
         }
     }
 
-    private void getScooterDestinationInfo(LatLng origin, LatLng scooter, String service) {
+    public void getScooterDestinationInfo(LatLng origin, LatLng scooter, LatLng destination, String service) {
         final double earthRadius = 3961; // mi
         final double averageWalkingSpeed = 3.1; // mph
         final double averageScooterSpeed = 15; // mph
-        final LatLng destination = new LatLng(mDestination.getLatLng().latitude, mDestination.getLatLng().longitude);
 
         double dLon = (scooter.longitude - origin.longitude) * (Math.PI / 180); // Radians
         double dLat = (scooter.latitude - origin.latitude) * (Math.PI / 180); // Radians
