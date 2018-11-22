@@ -36,11 +36,17 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import edu.osu.ride.async.ResponseAggregatorAsyncTask;
+import edu.osu.ride.model.User;
 import edu.osu.ride.model.driver.Driver;
 import edu.osu.ride.model.scooter.Scooter;
 
@@ -57,6 +63,16 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
     private static final String BIRD_PACKAGE = "co.bird.android";
     private static final String LIME_PACKAGE = "com.limebike";
     private static final String TAG = "RiderActivity";
+
+    private FirebaseAuth mAuth;
+
+    private User mUser;
+    public User getUser() {
+        return mUser;
+    }
+    public void setUser(User user) {
+        mUser = user;
+    }
 
     private Location mLastKnownLocation;
     public Location getLastKnownLocation() {
@@ -267,6 +283,22 @@ public class RiderActivity extends FragmentActivity implements OnMyLocationButto
         mRideOptionsButton.setVisibility(GONE);
 
         mShowBirds = false;
+
+        mAuth = FirebaseAuth.getInstance();
+
+        FirebaseDatabase.getInstance().getReference("Users")
+                .child(mAuth.getCurrentUser().getUid())
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        mUser = dataSnapshot.getValue(User.class);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        System.out.println("The read failed: " + databaseError.getCode());
+                    }
+                });
     }
 
     public void launchRideOptionsDialog() {
